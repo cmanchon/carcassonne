@@ -6,6 +6,7 @@
 #define TUILE_H
 
 #define UND -1              //pour toutes les valeurs non definies, notamment à l'initialisation
+#define NB_OF_TILES 72
 
 typedef struct side_t{
     char* type;
@@ -24,9 +25,31 @@ typedef struct tile_t{
 }tile;
 
 
+typedef struct stack_t{
+    tile* tab;
+    int nb_tiles;
+}stack;
+
+
+typedef struct grid_t{
+    tile** tab;
+    int nb_tiles;
+
+}grid;
+
+
 tile* init_tile(char* side_A, char* side_B, char* side_C, char* side_D, char* side_E, int id);
 void free_tile(tile* T);
+
 void print_tile_info(tile* T);
+
+stack* init_stack();
+tile* pop(stack S);
+void push(stack S, tile *T);
+stack* get_tiles_from_file(char* filename);
+
+grid* init_grid();
+void free_grid(grid* G);
 
 
 #endif

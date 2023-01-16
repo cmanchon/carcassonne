@@ -8,5 +8,8 @@ int main(void){
     print_tile_info(T);
     free_tile(T);
 
+    get_tiles_from_file("data/tuiles_base_simplifiees.csv");
+
+
     return 0;
 }
