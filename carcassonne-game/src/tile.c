@@ -36,7 +36,6 @@ tile* init_tile(char* side_A, char* side_B, char* side_C, char* side_D, char* si
 void free_tile(tile *T){
     free(T->sides);
     free(T);   
-    printf("tile freed.\n"); 
 }
 
 void print_tile_info(tile *T){
@@ -66,7 +65,6 @@ stack *init_stack() {
 void free_stack(stack *S){
     free(S->tab);
     free(S);
-    printf("stack freed.\n");
 }
 
 tile* pop(stack *S){
@@ -115,6 +113,9 @@ stack* get_tiles_from_file(char* filename){
     size_t size;
     char *buf = NULL;
     char **types = (char**)malloc(5*sizeof(char*));
+    for (int i = 0 ; i < 5 ; i++){
+        types[i] = (char*)malloc(10*sizeof(char));
+    }
     for (int j = 0 ; j < NB_OF_TILES ; j++){
         for (int i = 0 ; i < 5 ; i++){
             if (i==4){
@@ -123,27 +124,24 @@ stack* get_tiles_from_file(char* filename){
             else{
                 getdelim(&buf, &size, ',', fh);
             }
-            types[i] = (char*)malloc(20*sizeof(char));
             buf[strlen(buf)-1] = '\0';
             strcpy(types[i], buf);
         }
         tile* tmp = init_tile(types[0], types[1], types[2], types[3], types[4], j+1);
-        // push(*S, tmp);
-        // print_tile_info(&S->tab[j]);
-        print_tile_info(tmp);
-        printf("\n\n");
+        if (j < 6){
+            print_stack(S);
+        }
+        push(S, tmp);
         free_tile(tmp);
     }
-
-
-
-    fclose(fh);
     for (int i = 0 ; i < 5 ; i ++){
         free(types[i]);
     }
     free(types);
+    free(buf);
+    fclose(fh);
 
-    return NULL;
+    return S;
 }
 
 
