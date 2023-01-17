@@ -54,15 +54,17 @@ void print_tile_info(tile *T){
 
 
 //STACK
-stack* init_stack(){
-    stack* S = NULL;
-    S = (stack*)malloc(sizeof(stack));
-    S->nb_tiles = 0;
-    return S;
+stack *init_stack() {
+  stack *S = NULL;
+  S = (stack *)malloc(sizeof(stack));
+  S->tab = (tile *)malloc(sizeof(tile));
+  S->nb_tiles = 0;
+  return S;
 }
 
 
 void free_stack(stack *S){
+    free(S->tab);
     free(S);
     printf("stack freed.\n");
 }
@@ -74,17 +76,17 @@ tile* pop(stack *S){
     else{
         tile *L = &(S->tab[S->nb_tiles-1]);
         tile* L_copy = init_tile(L->sides[0].type, L->sides[1].type, L->sides[2].type, L->sides[3].type, L->sides[4].type, L->id);
-        free_tile(&(S->tab[S->nb_tiles-1]));
+        L = NULL;
+        S->tab = realloc(S->tab, (S->nb_tiles - 1) * sizeof(tile));
         S->nb_tiles--;
         return L_copy;
     }
 }
 
-void push(stack *S, tile *T){
-    realloc(&(S->tab[S->nb_tiles]), (S->nb_tiles+1)*sizeof(tile));
-    printf("push\n");
-    S->tab[S->nb_tiles] = *T;
-    S->nb_tiles++;
+void push(stack *S, tile *T) {
+  S->tab = realloc(S->tab, (S->nb_tiles + 1) * sizeof(tile));
+  S->tab[S->nb_tiles] = *T;
+  S->nb_tiles++;
 }
 
 
@@ -109,7 +111,7 @@ stack* get_tiles_from_file(char* filename){
         printf("get_tiles_from_file : erreur d'ouverture de %s\n", filename);
         exit(1);
     }
-    // stack* S = init_stack();
+    stack* S = init_stack();
     size_t size;
     char *buf = NULL;
     char **types = (char**)malloc(5*sizeof(char*));
