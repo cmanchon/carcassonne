@@ -44,8 +44,10 @@ void free_tile(tile* T);
 void print_tile_info(tile* T);
 
 stack* init_stack();
-tile* pop(stack S);
-void push(stack S, tile *T);
+void free_stack(stack *S);
+tile* pop(stack *S);
+void push(stack *S, tile *T);
+void print_stack(stack *S);
 stack* get_tiles_from_file(char* filename);
 
 grid* init_grid();

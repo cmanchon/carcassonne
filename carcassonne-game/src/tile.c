@@ -35,7 +35,8 @@ tile* init_tile(char* side_A, char* side_B, char* side_C, char* side_D, char* si
 
 void free_tile(tile *T){
     free(T->sides);
-    free(T);    
+    free(T);   
+    printf("tile freed.\n"); 
 }
 
 void print_tile_info(tile *T){
@@ -54,27 +55,50 @@ void print_tile_info(tile *T){
 
 //STACK
 stack* init_stack(){
-    stack* S;
+    stack* S = NULL;
+    S = (stack*)malloc(sizeof(stack));
     S->nb_tiles = 0;
     return S;
 }
 
-tile* pop(stack S){
-    if (S.nb_tiles == 0){
+
+void free_stack(stack *S){
+    free(S);
+    printf("stack freed.\n");
+}
+
+tile* pop(stack *S){
+    if (S->nb_tiles == 0){
         return NULL;
     }
     else{
-        tile *L = &(S.tab[S.nb_tiles-1]);
+        tile *L = &(S->tab[S->nb_tiles-1]);
         tile* L_copy = init_tile(L->sides[0].type, L->sides[1].type, L->sides[2].type, L->sides[3].type, L->sides[4].type, L->id);
-        free_tile(&(S.tab[S.nb_tiles-1]));
-        S.nb_tiles--;
+        free_tile(&(S->tab[S->nb_tiles-1]));
+        S->nb_tiles--;
         return L_copy;
     }
 }
 
-void push(stack S, tile *T){
-    S.tab[S.nb_tiles] = *T;
-    S.nb_tiles++;
+void push(stack *S, tile *T){
+    realloc(&(S->tab[S->nb_tiles]), (S->nb_tiles+1)*sizeof(tile));
+    printf("push\n");
+    S->tab[S->nb_tiles] = *T;
+    S->nb_tiles++;
+}
+
+
+void print_stack(stack *S){
+    if (S->nb_tiles == 0){
+        printf("Stack empty.\n");
+    }
+    else{
+        for (int i = 0 ; i < S->nb_tiles ; i++){
+            print_tile_info(&S->tab[i]);
+            printf("\n");
+        }
+    }
+    
 }
 
 
