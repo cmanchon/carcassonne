@@ -7,6 +7,7 @@ tile* init_tile(char side_A, char side_B, char side_C, char side_D, char side_E,
     
     T->id = id;
 
+
     T->sides[0].type = side_A; 
     T->sides[0].meeple = UND; 
     
@@ -112,10 +113,7 @@ stack* get_tiles_from_file(char* filename){
     stack* S = init_stack();
     size_t size;
     char *buf = NULL;
-    char **types = (char**)malloc(5*sizeof(char*));
-    // for (int i = 0 ; i < 5 ; i++){
-    //     types[i] = (char*)malloc(10*sizeof(char));
-    // }
+    char *types = (char*)malloc(5*sizeof(char));
     for (int j = 0 ; j < NB_OF_TILES ; j++){
         for (int i = 0 ; i < 5 ; i++){
             if (i==4){
@@ -124,18 +122,22 @@ stack* get_tiles_from_file(char* filename){
             else{
                 getdelim(&buf, &size, ',', fh);
             }
-            buf[1] = '\0';
-            strcpy(types[i], buf);
+            if (strcmp(buf, "pre,")==0 || strcmp(buf, "pre\n")==0) types[i] = 'p';
+            else if (strcmp(buf, "route,")==0 || strcmp(buf, "route\n")==0) types[i] = 'r';
+            else if (strcmp(buf, "blason,")==0 || strcmp(buf, "blason\n")==0) types[i] = 'b';
+            else if (strcmp(buf, "ville,")==0 || strcmp(buf, "ville\n")==0) types[i] = 'c';              //pour cité
+            else if (strcmp(buf, "village,")==0 || strcmp(buf, "village\n")==0) types[i] = 'v';
+            else if (strcmp(buf, "abbaye,")==0 || strcmp(buf, "abbaye\n")==0) types[i] = 'a';
+            else {
+                printf("erreur get_tiles_from_file : erreur de lecture\n");
+                printf("%s\n", buf);
+                exit(1);
+            }
         }
-        tile* tmp = init_tile(*types[0], *types[1], *types[2], *types[3], *types[4], j+1);
-        if (j < 6){
-            print_stack(S);
-        }
+        tile* tmp = init_tile(types[0], types[1], types[2], types[3], types[4], j+1);
+        
         push(S, tmp);
         free_tile(tmp);
-    }
-    for (int i = 0 ; i < 5 ; i ++){
-        free(types[i]);
     }
     free(types);
     free(buf);
