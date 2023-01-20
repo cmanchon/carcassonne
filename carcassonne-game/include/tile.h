@@ -9,7 +9,7 @@
 #define NB_OF_TILES 72
 
 typedef struct side_t{
-    char* type;
+    char type;
     int meeple;
 }side;
 
@@ -38,7 +38,7 @@ typedef struct grid_t{
 }grid;
 
 
-tile* init_tile(char* side_A, char* side_B, char* side_C, char* side_D, char* side_E, int id);
+tile* init_tile(char side_A, char side_B, char side_C, char side_D, char side_E, int id);
 void free_tile(tile* T);
 
 void print_tile_info(tile* T);

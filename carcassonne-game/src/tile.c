@@ -1,7 +1,7 @@
 #include "../include/tile.h"
 
 //TILE
-tile* init_tile(char* side_A, char* side_B, char* side_C, char* side_D, char* side_E, int id){
+tile* init_tile(char side_A, char side_B, char side_C, char side_D, char side_E, int id){
     tile *T = (tile*)malloc(sizeof(tile)); 
     T->sides = (side*)malloc(5*sizeof(side)); 
     
@@ -26,7 +26,7 @@ tile* init_tile(char* side_A, char* side_B, char* side_C, char* side_D, char* si
     T->played_by = UND;
     T->x = UND;
     T->y = UND;
-    if (strcmp(side_A, "blason")==0 || strcmp(side_B, "blason")==0 || strcmp(side_C, "blason")==0 || strcmp(side_D, "blason")==0 || strcmp(side_E, "blason")==0 ) T->blason = 1;
+    if (strcmp(&side_A, "blason")==0 || strcmp(&side_B, "blason")==0 || strcmp(&side_C, "blason")==0 || strcmp(&side_D, "blason")==0 || strcmp(&side_E, "blason")==0 ) T->blason = 1;
     else T->blason = 0;
 
     return T;
@@ -41,9 +41,9 @@ void free_tile(tile *T){
 void print_tile_info(tile *T){
     printf("Tuile %d :\n", T->id);
 
-    printf("  %c  \n", T->sides[0].type[0]);
-    printf("%c %c %c\n", T->sides[3].type[0], T->sides[4].type[0], T->sides[1].type[0]);
-    printf("  %c  \n\n", T->sides[2].type[0]);
+    printf("  %c  \n", T->sides[0].type);
+    printf("%c %c %c\n", T->sides[3].type, T->sides[4].type, T->sides[1].type);
+    printf("  %c  \n\n", T->sides[2].type);
 
     printf("state : %d\n", T->state);
     printf("played_by : %d\n", T->played_by);
@@ -113,9 +113,9 @@ stack* get_tiles_from_file(char* filename){
     size_t size;
     char *buf = NULL;
     char **types = (char**)malloc(5*sizeof(char*));
-    for (int i = 0 ; i < 5 ; i++){
-        types[i] = (char*)malloc(10*sizeof(char));
-    }
+    // for (int i = 0 ; i < 5 ; i++){
+    //     types[i] = (char*)malloc(10*sizeof(char));
+    // }
     for (int j = 0 ; j < NB_OF_TILES ; j++){
         for (int i = 0 ; i < 5 ; i++){
             if (i==4){
@@ -124,10 +124,10 @@ stack* get_tiles_from_file(char* filename){
             else{
                 getdelim(&buf, &size, ',', fh);
             }
-            buf[strlen(buf)-1] = '\0';
+            buf[1] = '\0';
             strcpy(types[i], buf);
         }
-        tile* tmp = init_tile(types[0], types[1], types[2], types[3], types[4], j+1);
+        tile* tmp = init_tile(*types[0], *types[1], *types[2], *types[3], *types[4], j+1);
         if (j < 6){
             print_stack(S);
         }
