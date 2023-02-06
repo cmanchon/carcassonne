@@ -64,6 +64,9 @@ stack *init_stack() {
 
 
 void free_stack(stack *S){
+    for (int i = S->nb_tiles ; i > 0 ; i--){
+        free_tile(&S->tab[i]);
+    }
     free(S->tab);
     free(S);
 }
