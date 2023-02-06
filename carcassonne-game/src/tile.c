@@ -83,11 +83,35 @@ tile* pop(stack *S){
 }
 
 void push(stack *S, tile T) {
-    S->tab = realloc(S->tab, (S->nb_tiles + 1) * sizeof(tile));
+    S->tab = realloc(S->tab, (S->nb_tiles + 1) * ( sizeof(tile)+ 5*sizeof(side) ));
     // S->tab[S->nb_tiles] = *T;
     // tile tmp = {T.id, T.sides, T.state, T.played_by, T.x, T.y, T.blason};
-    S->tab[S->nb_tiles] = T;
     
+    S->tab[S->nb_tiles] = T;
+    /*
+    S->tab[S->nb_tiles].blason = T.blason;
+    S->tab[S->nb_tiles].id = T.id;
+    S->tab[S->nb_tiles].played_by = T.played_by;
+
+    S->tab[S->nb_tiles].sides[0].meeple = T.sides[0].meeple;
+    S->tab[S->nb_tiles].sides[0].type = T.sides[0].type;
+    
+    S->tab[S->nb_tiles].sides[1].meeple = T.sides[1].meeple;
+    S->tab[S->nb_tiles].sides[1].type = T.sides[1].type;
+
+    S->tab[S->nb_tiles].sides[2].meeple = T.sides[2].meeple;
+    S->tab[S->nb_tiles].sides[2].type = T.sides[2].type;
+
+    S->tab[S->nb_tiles].sides[3].meeple = T.sides[3].meeple;
+    S->tab[S->nb_tiles].sides[3].type = T.sides[3].type;
+
+    S->tab[S->nb_tiles].sides[4].meeple = T.sides[4].meeple;
+    S->tab[S->nb_tiles].sides[4].type = T.sides[4].type;
+
+    S->tab[S->nb_tiles].state = T.state;
+    S->tab[S->nb_tiles].x = T.x;
+    S->tab[S->nb_tiles].y = T.y;
+    */
     S->nb_tiles++;
 }
 
@@ -117,9 +141,9 @@ stack* get_tiles_from_file(char* filename){
     size_t size;
     char *buf = NULL;
     // char *types = (char*)malloc(5*sizeof(char));
-    tile tmp;
+    tile *tmp = init_tile('z', 'z', 'z', 'z', 'z', UND);
     for (int j = 0 ; j < NB_OF_TILES ; j++){
-        tmp.blason = 0;
+        tmp->blason = 0;
         for (int i = 0 ; i < 5 ; i++){
             if (i==4){
                 getdelim(&buf, &size, '\n', fh);
@@ -127,15 +151,16 @@ stack* get_tiles_from_file(char* filename){
             else{
                 getdelim(&buf, &size, ',', fh);
             }
-            if (strcmp(buf, "pre,")==0 || strcmp(buf, "pre\n")==0) tmp.sides[i].type = 'p';
-            else if (strcmp(buf, "route,")==0 || strcmp(buf, "route\n")==0) tmp.sides[i].type = 'r';
-            else if (strcmp(buf, "ville,")==0 || strcmp(buf, "ville\n")==0) tmp.sides[i].type = 'c';              //pour cité
-            else if (strcmp(buf, "village,")==0 || strcmp(buf, "village\n")==0) tmp.sides[i].type = 'v';
-            else if (strcmp(buf, "abbaye,")==0 || strcmp(buf, "abbaye\n")==0) tmp.sides[i].type = 'a';
+            if (strcmp(buf, "pre,")==0 || strcmp(buf, "pre\n")==0) tmp->sides[i].type = 'p';
+            else if (strcmp(buf, "route,")==0 || strcmp(buf, "route\n")==0) tmp->sides[i].type = 'r';
+            else if (strcmp(buf, "ville,")==0 || strcmp(buf, "ville\n")==0) tmp->sides[i].type = 'c';              //pour cité
+            else if (strcmp(buf, "village,")==0 || strcmp(buf, "village\n")==0) tmp->sides[i].type = 'v';
+            else if (strcmp(buf, "abbaye,")==0 || strcmp(buf, "abbaye\n")==0) tmp->sides[i].type = 'a';
             else if (strcmp(buf, "blason,")==0 || strcmp(buf, "blason\n")==0) {
-                tmp.sides[i].type = 'b';
-                tmp.blason = 1;
+                tmp->sides[i].type = 'b';
+                tmp->blason = 1;
             }
+            
             // if (strcmp(buf, "pre,")==0 || strcmp(buf, "pre\n")==0) types[i] = 'p';
             // else if (strcmp(buf, "route,")==0 || strcmp(buf, "route\n")==0) types[i] = 'r';
             // else if (strcmp(buf, "ville,")==0 || strcmp(buf, "ville\n")==0) types[i] = 'c';              //pour cité
@@ -152,12 +177,85 @@ stack* get_tiles_from_file(char* filename){
             }
         }
         // tile* tmp = init_tile(types[0], types[1], types[2], types[3], types[4], j+1);
-        tmp.id = j+1;
-        tmp.played_by = UND;
-        tmp.state = 0;
-        tmp.x = UND;
-        tmp.y = UND;
-        push(S, tmp);
+        tmp->id = j+1;
+        tmp->played_by = UND;
+        tmp->state = 0;
+        tmp->x = UND;
+        tmp->y = UND;
+        push(S, *tmp);
+        // free_tile(tmp);
+    }
+    // free(types);
+    free_tile(tmp);
+    free(buf);
+    fclose(fh);
+
+    return S;
+}
+
+
+stack* get_tiles_from_file2(char* filename){
+    //erreurs de fuites mémoires donc y a un truc que j'alloue mais free pas
+
+
+    FILE *fh = fopen(filename, "r");
+
+    if (fh == NULL){
+        printf("get_tiles_from_file : erreur d'ouverture de %s\n", filename);
+        exit(1);
+    }
+    stack* S = (stack*)malloc(sizeof(stack));
+    S->tab = (tile*)malloc(NB_OF_TILES*sizeof(tile));
+    for (int i = 0 ; i < NB_OF_TILES ; i++){
+        S->tab[i].sides = (side*)malloc(5*sizeof(side));
+    }
+
+    size_t size;
+    char *buf = NULL;
+    // char *types = (char*)malloc(5*sizeof(char));
+
+
+    
+    for (int j = 0 ; j < NB_OF_TILES ; j++){
+        S->tab[j].blason = 0;
+        for (int i = 0 ; i < 5 ; i++){
+            if (i==4){
+                getdelim(&buf, &size, '\n', fh);
+            }
+            else{
+                getdelim(&buf, &size, ',', fh);
+            }
+            if (strcmp(buf, "pre,")==0 || strcmp(buf, "pre\n")==0) S->tab[j].sides[i].type = 'p';
+            else if (strcmp(buf, "route,")==0 || strcmp(buf, "route\n")==0) S->tab[j].sides[i].type = 'r';
+            else if (strcmp(buf, "ville,")==0 || strcmp(buf, "ville\n")==0) S->tab[j].sides[i].type = 'c';              //pour cité
+            else if (strcmp(buf, "village,")==0 || strcmp(buf, "village\n")==0) S->tab[j].sides[i].type = 'v';
+            else if (strcmp(buf, "abbaye,")==0 || strcmp(buf, "abbaye\n")==0) S->tab[j].sides[i].type = 'a';
+            else if (strcmp(buf, "blason,")==0 || strcmp(buf, "blason\n")==0) {
+                S->tab[j].sides[i].type = 'b';
+                S->tab[j].blason = 1;
+            }
+            
+            // if (strcmp(buf, "pre,")==0 || strcmp(buf, "pre\n")==0) types[i] = 'p';
+            // else if (strcmp(buf, "route,")==0 || strcmp(buf, "route\n")==0) types[i] = 'r';
+            // else if (strcmp(buf, "ville,")==0 || strcmp(buf, "ville\n")==0) types[i] = 'c';              //pour cité
+            // else if (strcmp(buf, "village,")==0 || strcmp(buf, "village\n")==0) types[i] = 'v';
+            // else if (strcmp(buf, "abbaye,")==0 || strcmp(buf, "abbaye\n")==0) types[i] = 'a';
+            // else if (strcmp(buf, "blason,")==0 || strcmp(buf, "blason\n")==0) {
+            //     types[i] = 'b';
+            //     tmp.blason = 1;
+            // }
+            else {
+                printf("erreur get_tiles_from_file : erreur de lecture\n");
+                printf("%s\n", buf);
+                exit(1);
+            }
+        }
+        // tile* tmp = init_tile(types[0], types[1], types[2], types[3], types[4], j+1);
+        S->tab[j].id = j+1;
+        S->tab[j].played_by = UND;
+        S->tab[j].state = 0;
+        S->tab[j].x = UND;
+        S->tab[j].y = UND;
         // free_tile(tmp);
     }
     // free(types);
