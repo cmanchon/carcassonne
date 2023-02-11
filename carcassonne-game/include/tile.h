@@ -15,7 +15,7 @@ typedef struct side_t{
 
 
 typedef struct tile_t{
-    int id;
+    int id;                 //if == UND (-1) -> vide
     side *sides;            //5 cotes
     int state;              //posee ou non
     int played_by;          //id du joueur qui l'a posee
@@ -49,11 +49,13 @@ tile* pop(stack *S);
 void push(stack *S, tile T);
 void print_stack(stack *S);
 stack* get_tiles_from_file(char* filename);
-stack* get_tiles_from_file2(char* filename);
 
 
 grid* init_grid();
 void free_grid(grid* G);
+int place_tile_on_grid(grid* G, tile T, int x, int y, int player);
+void print_grid(grid *G);
+
 
 
 #endif

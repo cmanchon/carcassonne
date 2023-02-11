@@ -27,7 +27,7 @@ tile* init_tile(char side_A, char side_B, char side_C, char side_D, char side_E,
     T->played_by = UND;
     T->x = UND;
     T->y = UND;
-    if (strcmp(&side_A, "blason")==0 || strcmp(&side_B, "blason")==0 || strcmp(&side_C, "blason")==0 || strcmp(&side_D, "blason")==0 || strcmp(&side_E, "blason")==0 ) T->blason = 1;
+    if (side_A == 'b' || side_B == 'b' || side_C == 'b' || side_D == 'b' || side_E == 'b') T->blason = 1;
     else T->blason = 0;
 
     return T;
@@ -109,9 +109,6 @@ void print_stack(stack *S){
 
 
 stack* get_tiles_from_file(char* filename){
-    //erreurs de fuites mémoires donc y a un truc que j'alloue mais free pas
-
-
     FILE *fh = fopen(filename, "r");
 
     if (fh == NULL){
@@ -127,7 +124,6 @@ stack* get_tiles_from_file(char* filename){
 
     size_t size;
     char *buf = NULL;
-    // char *types = (char*)malloc(5*sizeof(char));
 
 
     
@@ -150,30 +146,18 @@ stack* get_tiles_from_file(char* filename){
                 S->tab[j].blason = 1;
             }
             
-            // if (strcmp(buf, "pre,")==0 || strcmp(buf, "pre\n")==0) types[i] = 'p';
-            // else if (strcmp(buf, "route,")==0 || strcmp(buf, "route\n")==0) types[i] = 'r';
-            // else if (strcmp(buf, "ville,")==0 || strcmp(buf, "ville\n")==0) types[i] = 'c';              //pour cité
-            // else if (strcmp(buf, "village,")==0 || strcmp(buf, "village\n")==0) types[i] = 'v';
-            // else if (strcmp(buf, "abbaye,")==0 || strcmp(buf, "abbaye\n")==0) types[i] = 'a';
-            // else if (strcmp(buf, "blason,")==0 || strcmp(buf, "blason\n")==0) {
-            //     types[i] = 'b';
-            //     tmp.blason = 1;
-            // }
             else {
                 printf("erreur get_tiles_from_file : erreur de lecture\n");
                 printf("%s\n", buf);
                 exit(1);
             }
         }
-        // tile* tmp = init_tile(types[0], types[1], types[2], types[3], types[4], j+1);
         S->tab[j].id = j+1;
         S->tab[j].played_by = UND;
         S->tab[j].state = 0;
         S->tab[j].x = UND;
         S->tab[j].y = UND;
-        // free_tile(tmp);
     }
-    // free(types);
     free(buf);
     fclose(fh);
 
@@ -185,15 +169,32 @@ stack* get_tiles_from_file(char* filename){
 //GRID
 grid* init_grid(){
     grid* G = (grid*)malloc(sizeof(grid));
-    G->tab  = (tile**)malloc(NB_OF_TILES*2-1 * sizeof(tile*));
+    G->tab  = (tile**)malloc((NB_OF_TILES*2-1) * sizeof(tile*));
     if (G->tab != NULL){
         int i = 0;
         do
         {
-            G->tab[i] = (tile*)malloc(NB_OF_TILES*2-1 * sizeof(tile));
+            G->tab[i] = (tile*)malloc((NB_OF_TILES*2-1) * sizeof(tile));
             i++;
         } while (i < NB_OF_TILES*2-1 && G->tab[i-1] != NULL);
         
+    }
+
+    for (int i = 0 ; i < NB_OF_TILES*2-1 ; i++){
+        for (int j = 0 ; j < NB_OF_TILES*2-1 ; j++){
+            G->tab[i][j].blason = UND;
+            G->tab[i][j].id = UND;
+            G->tab[i][j].played_by = UND;
+            G->tab[i][j].state = 1;
+            G->tab[i][j].x = UND;
+            G->tab[i][j].y = UND;
+
+            G->tab[i][j].sides = (side*)malloc(5 * sizeof(side));
+            for (int a = 0 ; a < 5 ; a++){
+                G->tab[i][j].sides[a].meeple = UND;
+                G->tab[i][j].sides[a].type = ' ';
+            }
+        }
     }
 
     G->nb_tiles = 0;
@@ -203,7 +204,108 @@ grid* init_grid(){
 
 void free_grid(grid *G){
     for (int i = 0 ; i < NB_OF_TILES*2-1 ; i++){
+        for (int j = 0 ; j < NB_OF_TILES*2-1 ; j++){
+            free(G->tab[i][j].sides);
+        }
         free(G->tab[i]);
     }
     free(G->tab);
+    free(G);
+}
+
+
+int place_tile_on_grid(grid* G, tile T, int x, int y, int player){
+    //returns 1 si could be placed, 0 otherwise
+
+    if (G->tab[x][y].id != UND){
+        //there's already a tile at this place
+        return 0;
+    }
+
+    G->tab[x][y] = T;
+    G->tab[x][y].state = 1;
+    G->tab[x][y].x = x;
+    G->tab[x][y].y = y;
+    G->tab[x][y].played_by = player;
+
+    G->nb_tiles++;
+
+    return 1;
+}
+
+//Affichage de la grille :
+// 
+//     0     1     2
+//     b
+// 0 b b b 
+//     b
+//     c     p
+// 1 c c c p p p
+//     c     p
+// 
+// 2
+// 
+// 
+
+//couleurs à ajouter
+
+void print_grid(grid *G){
+    //on parcourt une première fois pour établir la fenêtre d'où sont les tuiles placées 
+    int maxX = -1, maxY = -1;
+    int minX = NB_OF_TILES*2, minY = NB_OF_TILES*2;
+
+    for (int i = 0 ; i < NB_OF_TILES*2-1 ; i++){
+        for (int j = 0 ; j < NB_OF_TILES*2-1 ; j++){
+            if (G->tab[i][j].id != UND){
+                if (minX > i) minX = i;
+                if (minY > j) minY = j;
+
+                if (maxX < i) maxX = i;
+                if (maxY < j) maxY = j;
+            }
+        }
+    }
+
+    //Affichage :
+    printf("     ");
+    for (int i = minX ; i < maxX+1 ; i++){
+        printf("%d     ", i);
+    }
+    printf("\n");
+    for (int j = minY ; j < maxY+1 ; j++){
+        printf("     ");
+        for (int i = minX ; i < maxX+1 ; i++){
+            if (G->tab[i][j].id != UND){
+                printf("%c      ", G->tab[i][j].sides[0].type);
+            }
+            else{
+                printf("       ");
+            }
+        }
+        printf("\n");
+
+        printf("%d ", j);
+        for (int i = minX ; i < maxX+1 ; i++){
+            if (G->tab[i][j].id != UND){
+                printf("%c %c %c  ", G->tab[i][j].sides[3].type, G->tab[i][j].sides[4].type,G->tab[i][j].sides[1].type);
+            }
+            else{
+                // printf("         ");
+                printf("       ");
+            }
+        }
+        printf("\n");
+        printf("     ");
+        for (int i = minX ; i < maxX+1 ; i++){
+            if (G->tab[i][j].id != UND){
+                printf("%c      ", G->tab[i][j].sides[2].type);
+            }
+            else{
+                printf("       ");
+            }
+        }
+        printf("\n");
+
+    }
+
 }
