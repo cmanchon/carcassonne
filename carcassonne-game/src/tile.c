@@ -79,18 +79,21 @@ tile* pop(stack *S){
         tile *L = &(S->tab[S->nb_tiles-1]);
         tile* L_copy = init_tile(L->sides[0].type, L->sides[1].type, L->sides[2].type, L->sides[3].type, L->sides[4].type, L->id);
         L = NULL;
+        free(S->tab[S->nb_tiles-1].sides);
         S->tab = realloc(S->tab, (S->nb_tiles - 1) * sizeof(tile));
         S->nb_tiles--;
         return L_copy;
     }
 }
 
-void push(stack *S, tile T) {
+void push(stack *S, tile *T) {
     S->tab = realloc(S->tab, (S->nb_tiles + 1) * ( sizeof(tile)+ 5*sizeof(side) ));
     
-    S->tab[S->nb_tiles] = T;
+    S->tab[S->nb_tiles] = *T;
+    S->tab[S->nb_tiles].sides = T->sides;
     
     S->nb_tiles++;
+    free(T);
 }
 
 

@@ -21,6 +21,6 @@ void free_game(game *G){
     }
     free(G->players);
     free_stack(G->deck);
-    free(G->board);
+    free_grid(G->board);
     free(G);
 }
