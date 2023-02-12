@@ -221,6 +221,11 @@ int place_tile_on_grid(grid* G, tile T, int x, int y, int player){
         //there's already a tile at this place
         return 0;
     }
+    else if (G->tab[x-1][y].id == UND && G->tab[x][y-1].id == UND && G->tab[x+1][y].id == UND && G->tab[x][y+1].id == UND && G->nb_tiles > 0) return 0;
+    else if (G->tab[x-1][y].id != UND && x-1 >=0 && G->tab[x-1][y].sides[1].type != T.sides[3].type) return 0;
+    else if (G->tab[x][y-1].id != UND && y-1 >=0 && G->tab[x][y-1].sides[2].type != T.sides[0].type) return 0;
+    else if (G->tab[x+1][y].id != UND && x+1 <=NB_OF_TILES*2-1 && G->tab[x+1][y].sides[3].type != T.sides[1].type) return 0;
+    else if (G->tab[x][y+1].id != UND && y+1 <= NB_OF_TILES*2-1 && G->tab[x][y+1].sides[0].type != T.sides[2].type) return 0;
 
     G->tab[x][y] = T;
     G->tab[x][y].state = 1;
@@ -232,6 +237,77 @@ int place_tile_on_grid(grid* G, tile T, int x, int y, int player){
 
     return 1;
 }
+
+void print_side(side S, int show_meeples, int show_bg_colors){
+    if (show_bg_colors != 0){
+        switch (S.type)
+        {
+        case 'b':
+            printf("\033[45");       //purple
+            break;
+        
+        case 'p':
+            printf("\033[42");       //green
+            break;
+        
+        case 'r':
+            printf("\033[44");       //blue
+            break;
+
+        case 'c':
+            printf("\033[43");       //yellow
+            break;
+        
+        case 'v':
+            printf("\033[41");       //red
+            break;
+        
+        case 'a':
+            printf("\033[46");       //cyan
+            break;
+        
+        default:
+            printf("\033[40");       //black
+            break;
+        }
+        if (show_meeples==0) printf("m");
+        else printf(";");
+    }
+
+    if (show_meeples!=0){
+        if (show_bg_colors == 0) printf("\033[");
+        switch (S.meeple)
+        {
+        case 0:
+            printf("33m");          //yellow
+            break;
+        
+        case 1:
+            printf("31m");          //red
+            break;
+        
+        case 2:
+            printf("32m");          //green
+            break;
+        
+        case 3:
+            printf("34m");          //blue
+            break;
+        
+        case 4:
+            printf("30m");          //black
+            break;
+        
+        default:
+            printf("37m");          //white
+            break;
+        }
+    }
+
+    printf(" %c \033[0m", S.type);
+}
+
+
 
 //Affichage de la grille :
 // 
@@ -249,8 +325,13 @@ int place_tile_on_grid(grid* G, tile T, int x, int y, int player){
 
 //couleurs à ajouter
 
-void print_grid(grid *G){
+void print_grid(grid *G, int show_meeples, int show_bg_colors){
     //on parcourt une première fois pour établir la fenêtre d'où sont les tuiles placées 
+    if (G->nb_tiles == 0){
+        printf("grid empty\n");
+        return;
+    }
+
     int maxX = -1, maxY = -1;
     int minX = NB_OF_TILES*2, minY = NB_OF_TILES*2;
 
@@ -267,41 +348,58 @@ void print_grid(grid *G){
     }
 
     //Affichage :
-    printf("     ");
+    printf("       ");
+    printf("\033[1;37m");
     for (int i = minX ; i < maxX+1 ; i++){
-        printf("%d     ", i);
+        if (i >= 100) printf("%d      ", i);
+        if (i < 100 && i >= 10) printf(" %d      ", i);
+        if (i < 10) printf(" %d       ", i);
     }
+    printf("\033[0m");
     printf("\n");
     for (int j = minY ; j < maxY+1 ; j++){
-        printf("     ");
+        printf("       ");
         for (int i = minX ; i < maxX+1 ; i++){
             if (G->tab[i][j].id != UND){
-                printf("%c      ", G->tab[i][j].sides[0].type);
+                // printf("%c       ", G->tab[i][j].sides[0].type);
+                print_side(G->tab[i][j].sides[0], show_meeples, show_bg_colors);
+                printf("      ");
             }
             else{
-                printf("       ");
+                printf("        ");
             }
         }
         printf("\n");
 
-        printf("%d ", j);
+        printf("\033[1;37m");
+        if (j >= 100) printf("%d ", j);
+        else if (j < 100 && j >= 10) printf(" %d ", j);
+        else if (j < 10) printf("  %d ", j);
+        printf("\033[0m");
         for (int i = minX ; i < maxX+1 ; i++){
             if (G->tab[i][j].id != UND){
-                printf("%c %c %c  ", G->tab[i][j].sides[3].type, G->tab[i][j].sides[4].type,G->tab[i][j].sides[1].type);
+                // printf("%c %c %c   ", G->tab[i][j].sides[3].type, G->tab[i][j].sides[4].type,G->tab[i][j].sides[1].type);
+                print_side(G->tab[i][j].sides[3], show_meeples, show_bg_colors);
+                // printf(" ");
+                print_side(G->tab[i][j].sides[4], show_meeples, show_bg_colors);
+                // printf(" ");
+                print_side(G->tab[i][j].sides[1], show_meeples, show_bg_colors);
+                // printf(" ");
             }
             else{
-                // printf("         ");
-                printf("       ");
+                printf("        ");
             }
         }
         printf("\n");
-        printf("     ");
+        printf("       ");
         for (int i = minX ; i < maxX+1 ; i++){
             if (G->tab[i][j].id != UND){
-                printf("%c      ", G->tab[i][j].sides[2].type);
+                // printf("%c        ", G->tab[i][j].sides[2].type);
+                print_side(G->tab[i][j].sides[2], show_meeples, show_bg_colors);
+                printf("      ");
             }
             else{
-                printf("       ");
+                printf("        ");
             }
         }
         printf("\n");
