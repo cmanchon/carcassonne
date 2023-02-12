@@ -2,8 +2,8 @@ CC = gcc
 CFLAGS = -Wall
 OPT = -O3
 
-main: main.o tile.o player.o
-	$(CC) $(OPT) obj/main.o obj/tile.o obj/player.o -o main
+main: main.o tile.o player.o game.o
+	$(CC) $(OPT) obj/main.o obj/tile.o obj/player.o obj/game.o -o main
 
 
 main.o: main.c
@@ -16,6 +16,10 @@ tile.o: src/tile.c include/tile.h
 
 player.o: src/player.c include/player.h 
 	$(CC) -c $(CFLAGS) src/player.c -o obj/player.o
+
+
+game.o: src/game.c include/game.h 
+	$(CC) -c $(CFLAGS) src/game.c -o obj/game.o
 
 
 

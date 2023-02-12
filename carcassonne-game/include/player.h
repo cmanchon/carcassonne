@@ -2,9 +2,19 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-struct player_t{
+typedef struct player_t{
+    int id;
+    int meeple_color;
+    int meeple_number;
+    int score;
 
+    stack* hand;
 }player;
 
+
+player* init_player(int numero, int meeple);
+void free_player(player* P);
+
+void print_player(player *P);
 
 #endif
