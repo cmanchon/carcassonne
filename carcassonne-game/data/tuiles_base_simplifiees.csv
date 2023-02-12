@@ -1,4 +1,3 @@
-route,ville,route,pre,route
 route,ville,pre,route,route
 blason,blason,blason,route,blason
 route,ville,pre,route,route
@@ -70,3 +69,4 @@ blason,blason,blason,route,blason
 route,route,pre,pre,route
 abbaye,abbaye,abbaye,route,abbaye
 pre,ville,pre,ville,pre
+route,ville,route,pre,route

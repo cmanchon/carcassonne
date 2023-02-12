@@ -43,6 +43,7 @@ tile* init_tile(char side_A, char side_B, char side_C, char side_D, char side_E,
 void free_tile(tile* T);
 
 void print_tile_info(tile* T);
+void rotate_tile(tile* T, int degrees);
 
 stack* init_stack();
 void free_stack(stack *S);

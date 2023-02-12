@@ -6,6 +6,7 @@
 int main(void){
     
     // tile* T = init_tile('b', 'b', 'p', 'c', 'c', 1);
+
     // T->sides[0].meeple = 0;
     // tile* M = init_tile('c', 'p', 'c', 'b', 'p', 2);
     // tile* O = init_tile('r', 'r', 'c', 'c', 'b', 3);
@@ -43,9 +44,9 @@ int main(void){
     // free_stack(S);
 
 
-    player *P = init_player(1, 3);
-    print_player(P);
-    free_player(P);
+    game *G = start_game("data/tuiles_base_simplifiees.csv");
+    deal_cards(G);
+    free_game(G);
 
     
     return 0;

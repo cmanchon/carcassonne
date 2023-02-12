@@ -40,17 +40,75 @@ void free_tile(tile *T){
 }
 
 void print_tile_info(tile *T){
+    int show_meeples = 0, show_bg_colors = 1;
     printf("Tuile %d :\n", T->id);
 
-    printf("  %c  \n", T->sides[0].type);
-    printf("%c %c %c\n", T->sides[3].type, T->sides[4].type, T->sides[1].type);
-    printf("  %c  \n\n", T->sides[2].type);
+    //affichage basique
+    // printf("  %c  \n", T->sides[0].type);
+    // printf("%c %c %c\n", T->sides[3].type, T->sides[4].type, T->sides[1].type);
+    // printf("  %c  \n\n", T->sides[2].type);
+
+    //affichage avec couleurs
+    printf("   ");
+    print_side(T->sides[0], show_meeples, show_bg_colors);
+    printf("\n");
+    print_side(T->sides[3], show_meeples, show_bg_colors);
+    print_side(T->sides[4], show_meeples, show_bg_colors);
+    print_side(T->sides[1], show_meeples, show_bg_colors);
+    printf("\n");
+    printf("   ");
+    print_side(T->sides[2], show_meeples, show_bg_colors);
+    printf("\n");
+    
 
     printf("state : %d\n", T->state);
     printf("played_by : %d\n", T->played_by);
     printf("coords : (%d, %d)\n", T->x, T->y);
     printf("blason : %d\n", T->blason);
 }
+
+
+void rotate_tile(tile* T, int degrees){
+    int tmpi1, tmpi2;
+    char tmpc1, tmpc2;
+    if (degrees == 90 || degrees == -270){
+        tmpi1 = T->sides[1].meeple;
+        tmpc1 = T->sides[1].type;
+        T->sides[1].meeple = T->sides[0].meeple;
+        T->sides[1].type = T->sides[0].type;
+        
+        tmpi2 = T->sides[2].meeple;
+        tmpc2 = T->sides[2].type;
+        T->sides[2].meeple = tmpi1;
+        T->sides[2].type = tmpc1;
+        
+        tmpi1 = T->sides[3].meeple;
+        tmpc1 = T->sides[3].type;
+        T->sides[3].meeple = tmpi2;
+        T->sides[3].type = tmpc2;
+
+        T->sides[0].meeple = tmpi1;
+        T->sides[0].type = tmpc1;
+
+    }
+    else if (degrees == 180){
+        rotate_tile(T, 90);
+        rotate_tile(T, 90);
+    }
+    else if (degrees == 270 || degrees == -90){
+        rotate_tile(T, 90);
+        rotate_tile(T, 90);
+        rotate_tile(T, 90);
+    }
+    else if (degrees == 0){
+        return;
+    }
+    else{
+        printf("error rotate_tile() : degrees value can't be divided by 90\n");
+        exit(1);
+    }
+}
+
 
 
 //STACK
