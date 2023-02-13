@@ -59,10 +59,11 @@ game* start_game(char* filename){
     }
 
     rotate_tile(&G->deck->tab[G->deck->nb_tiles-1], 270);
-    place_tile_on_grid(G->board, *pop(G->deck), 72, 72, UND);
+    tile *T = pop(G->deck);
+    place_tile_on_grid(G->board, T, 72, 72, UND);
     printf("\n\n\nstarting board:\n\n");
     print_grid(G->board, 0, 1);
-
+    free_tile(T);
     //shuffle
     deal_cards(G);
 

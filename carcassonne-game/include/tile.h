@@ -55,7 +55,7 @@ stack* get_tiles_from_file(char* filename);
 
 grid* init_grid();
 void free_grid(grid* G);
-int place_tile_on_grid(grid* G, tile T, int x, int y, int player);
+int place_tile_on_grid(grid* G, tile *T, int x, int y, int player);
 void print_side(side S, int show_meeples, int show_bg_colors);
 void print_grid(grid *G, int show_meeples, int show_bg_colors);
 
