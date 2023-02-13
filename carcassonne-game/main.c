@@ -29,15 +29,22 @@ int main(void){
     // free_tile(M);
     // free_tile(O);
 
-    //ree_stack(S);
+    //free_stack(S);
 
     
-    game *G = start_game("data/tuiles_base_simplifiees.csv");
-    deal_cards(G);
+    // game *G = start_game("data/tuiles_base_simplifiees.csv");
+    // deal_cards(G);
 
-    printf("sizeof tile %lu\n", sizeof(tile));
-    free_game(G);
+    // printf("sizeof tile %lu\n", sizeof(tile));
+    // free_game(G);
     
+
+
+    stack *S = get_tiles_from_file("data/test.csv");
+    print_stack(S);
+    erase(S, 3);
+    print_stack(S);
+    free_stack(S);
     
     return 0;
 }

@@ -6,7 +6,7 @@
 #define TUILE_H
 
 #define UND -1              //pour toutes les valeurs non definies, notamment à l'initialisation
-#define NB_OF_TILES 72
+#define NB_OF_TILES 7       //A CHANGER OMG C 72
 
 
 typedef struct side_t{
@@ -48,6 +48,7 @@ void rotate_tile(tile* T, int degrees);
 stack* init_stack();
 void free_stack(stack *S);
 tile* pop(stack *S);
+void erase(stack *S, int ind);
 void push(stack *S, tile *T);
 void print_stack(stack *S);
 stack* get_tiles_from_file(char* filename);

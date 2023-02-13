@@ -109,7 +109,27 @@ void rotate_tile(tile* T, int degrees){
     }
 }
 
+void copy_into(tile *old, tile* new){
+    //copies old's attributes into new, admitting they've both already been allocated
+    new->id = old->id;
 
+    new->sides[0].meeple = old->sides[0].meeple;
+    new->sides[0].type = old->sides[0].type;
+    new->sides[1].meeple = old->sides[1].meeple;
+    new->sides[1].type = old->sides[1].type;
+    new->sides[2].meeple = old->sides[2].meeple;
+    new->sides[2].type = old->sides[2].type;
+    new->sides[3].meeple = old->sides[3].meeple;
+    new->sides[3].type = old->sides[3].type;
+    new->sides[4].meeple = old->sides[4].meeple;
+    new->sides[4].type = old->sides[4].type;
+
+    new->state = old->state;
+    new->played_by = old->played_by;
+    new->x = old->x;
+    new->y = old->y;
+    new->blason = old->blason;
+}
 
 //STACK
 stack *init_stack() {
@@ -152,6 +172,25 @@ void push(stack *S, tile *T) {
     
     S->nb_tiles++;
     free(T);
+}
+
+void erase(stack *S, int ind){
+    //erases indth element of S
+    //-> places the element to erase at the top of the stack to pop it next
+
+    tile* T= init_tile(' ', ' ', ' ', ' ', ' ', UND);
+    copy_into(&S->tab[ind], T);
+    printf("alo???\n");
+    for (int i = ind ; i < S->nb_tiles-2 ; i++){
+        copy_into(&S->tab[i+1], &S->tab[i]);
+    }
+
+    copy_into(T, &S->tab[S->nb_tiles-1]);
+
+    pop(S);
+    free_tile(T);
+
+    return;
 }
 
 
