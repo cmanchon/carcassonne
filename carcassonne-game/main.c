@@ -5,7 +5,16 @@
 
 int main(void){
     
-    //tile* T = init_tile('b', 'b', 'p', 'c', 'c', 1);
+    // tile* T = init_tile('b', 'b', 'p', 'c', 'c', 1);
+    // print_tile_info(T);
+    // player *P = init_player(1, 3);
+    // place_meeple_on_tile(T, 1, P);
+    // int test = place_meeple_on_tile(T, 1, P);
+    // print_tile_info(T);
+    // print_player(P);
+    // free_player(P);
+
+    // free_tile(T);
 
     // T->sides[0].meeple = 0;
     // tile* M = init_tile('c', 'p', 'c', 'b', 'p', 2);
@@ -25,15 +34,14 @@ int main(void){
 
     //free_grid(G);
 
-    // free_tile(M);If prompted, confirm access to you
-
+    // free_tile(M);
     
     game *G = start_game("data/tuiles_base_simplifiees.csv");
     deal_cards(G);
-    printf("player 0 hand : \n");
-    print_stack(G->players[0]->hand);
+    gameplay(G);
     free_game(G);
     
+
 
     
     // stack *S = get_tiles_from_file("data/test.csv");

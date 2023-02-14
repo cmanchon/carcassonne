@@ -17,5 +17,5 @@ game* init_game(char* filename, int nb_players);
 void free_game(game* G);
 game* start_game(char* filename);
 void deal_cards(game *G);
-void shuffle(stack *S);                 //a faire
+void gameplay(game* G);
 #endif

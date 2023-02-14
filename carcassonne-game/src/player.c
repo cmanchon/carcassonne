@@ -56,3 +56,16 @@ void print_player(player *P){
     printf("%d tiles in hand\n", P->hand->nb_tiles);
 
 }
+
+
+int place_meeple_on_tile(tile* T, int side, player* P){
+    //returns 0 if was unable to place a meeple
+    if (T->sides[side].meeple != UND){
+        return 0;
+    } 
+    
+    T->sides[side].meeple = P->meeple_color;
+
+
+    return 1;
+}

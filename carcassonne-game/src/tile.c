@@ -40,7 +40,9 @@ void free_tile(tile *T){
 }
 
 void print_tile_info(tile *T){
-    int show_meeples = 0, show_bg_colors = 1;
+    //for debugging
+    int show_meeples = 0, show_bg_colors = 1;           
+    // int show_meeples = 1, show_bg_colors = 0;
     printf("Tuile %d :\n", T->id);
 
     //affichage basique
@@ -65,6 +67,22 @@ void print_tile_info(tile *T){
     printf("played_by : %d\n", T->played_by);
     printf("coords : (%d, %d)\n", T->x, T->y);
     printf("blason : %d\n", T->blason);
+}
+
+
+void print_tile(tile *T, int show_meeples, int show_bg_colors){
+    // int show_meeples = 1, show_bg_colors = 0;
+    printf("   ");
+    print_side(T->sides[0], show_meeples, show_bg_colors);
+    printf("\n");
+    print_side(T->sides[3], show_meeples, show_bg_colors);
+    print_side(T->sides[4], show_meeples, show_bg_colors);
+    print_side(T->sides[1], show_meeples, show_bg_colors);
+    printf("\n");
+    printf("   ");
+    print_side(T->sides[2], show_meeples, show_bg_colors);
+    printf("\n");
+    
 }
 
 

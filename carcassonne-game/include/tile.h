@@ -44,6 +44,7 @@ tile* init_tile(char side_A, char side_B, char side_C, char side_D, char side_E,
 void free_tile(tile* T);
 
 void print_tile_info(tile* T);
+void print_tile(tile *T, int show_meeples, int show_bg_colors);
 void rotate_tile(tile* T, int degrees);
 
 
@@ -58,6 +59,8 @@ void push(stack *S, tile *T);
 void print_stack(stack *S);
 stack* get_tiles_from_file(char* filename);
 void shuffle(stack* S);
+
+
 
 //GRID
 grid* init_grid();

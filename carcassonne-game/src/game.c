@@ -69,3 +69,41 @@ game* start_game(char* filename){
 
     return G;
 }
+
+
+
+
+void gameplay(game *G){
+
+    while (G->board->nb_tiles < (NB_OF_TILES*2-1) * (NB_OF_TILES*2-1)){
+        for (int i = 0 ; i < G->nb_players ; i++){
+            print_player(G->players[i]);
+            printf("board :\n\n");
+            print_grid(G->board, 0, 1);
+            tile * T = pop(G->players[i]->hand);
+            printf("\n\ntile drawed : \n");
+            print_tile(T, 0, 1);
+            char tmp = 'P';
+            int j = 0;
+            while((tmp != 'D' || tmp != 'G' || tmp != 'Y') && j<10){
+                printf("Press:\n");
+                printf("\tD to rotate right\n");
+                printf("\tG to rotate left\n");
+                printf("\tY to validate\n");
+                scanf(&tmp, "%c");
+                printf("tmp = %c\n", tmp);
+                printf("\n");
+                if (tmp == 'Y'){
+                    printf("alo???????\n");
+                    break;
+                } 
+                j++;
+            }
+
+        }
+    }
+
+
+    free_game(G);
+    return;   
+}
