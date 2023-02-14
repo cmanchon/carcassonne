@@ -24,27 +24,26 @@ int main(void){
     //print_grid(G, 0, 1);
 
     //free_grid(G);
-    
-    //free_tile(T);
-    // free_tile(M);
-    // free_tile(O);
 
-    //free_stack(S);
+    // free_tile(M);If prompted, confirm access to you
 
     
-    // game *G = start_game("data/tuiles_base_simplifiees.csv");
-    // deal_cards(G);
-
-    // printf("sizeof tile %lu\n", sizeof(tile));
-    // free_game(G);
+    game *G = start_game("data/tuiles_base_simplifiees.csv");
+    deal_cards(G);
+    printf("player 0 hand : \n");
+    print_stack(G->players[0]->hand);
+    free_game(G);
     
 
-
-    stack *S = get_tiles_from_file("data/test.csv");
-    print_stack(S);
-    erase(S, 3);
-    print_stack(S);
-    free_stack(S);
+    
+    // stack *S = get_tiles_from_file("data/test.csv");
+    // print_stack(S);
+    // printf("before : %d\n", S->nb_tiles);
+    // printf("-------------------------------------------------------------------\n\n");
+    // shuffle(S);
+    // print_stack(S);
+    // printf("after: %d\n", S->nb_tiles);
+    // free_stack(S);
     
     return 0;
 }

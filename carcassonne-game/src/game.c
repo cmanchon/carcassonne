@@ -64,7 +64,7 @@ game* start_game(char* filename){
     printf("\n\n\nstarting board:\n\n");
     print_grid(G->board, 0, 1);
     free_tile(T);
-    //shuffle
+    shuffle(G->deck);
     deal_cards(G);
 
     return G;

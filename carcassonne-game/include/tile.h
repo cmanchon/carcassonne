@@ -1,12 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #ifndef TUILE_H
 #define TUILE_H
 
 #define UND -1              //pour toutes les valeurs non definies, notamment à l'initialisation
-#define NB_OF_TILES 7       //A CHANGER OMG C 72
+#define NB_OF_TILES 72
 
 
 typedef struct side_t{
@@ -38,22 +39,27 @@ typedef struct grid_t{
 
 }grid;
 
-
+//TILE
 tile* init_tile(char side_A, char side_B, char side_C, char side_D, char side_E, int id);
 void free_tile(tile* T);
 
 void print_tile_info(tile* T);
 void rotate_tile(tile* T, int degrees);
 
+
+//STACK
 stack* init_stack();
 void free_stack(stack *S);
+
 tile* pop(stack *S);
-void erase(stack *S, int ind);
+void copy_into(tile* old, tile* new);
+tile* erase(stack *S, int ind);
 void push(stack *S, tile *T);
 void print_stack(stack *S);
 stack* get_tiles_from_file(char* filename);
+void shuffle(stack* S);
 
-
+//GRID
 grid* init_grid();
 void free_grid(grid* G);
 int place_tile_on_grid(grid* G, tile *T, int x, int y, int player);

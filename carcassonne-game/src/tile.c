@@ -174,24 +174,47 @@ void push(stack *S, tile *T) {
     free(T);
 }
 
-void erase(stack *S, int ind){
+tile* erase(stack *S, int ind){
     //erases indth element of S
     //-> places the element to erase at the top of the stack to pop it next
 
     tile* T= init_tile(' ', ' ', ' ', ' ', ' ', UND);
     copy_into(&S->tab[ind], T);
-    printf("alo???\n");
-    for (int i = ind ; i < S->nb_tiles-2 ; i++){
+    for (int i = ind ; i < S->nb_tiles-1 ; i++){
         copy_into(&S->tab[i+1], &S->tab[i]);
     }
 
-    copy_into(T, &S->tab[S->nb_tiles-1]);
+    copy_into(T, &S->tab[S->nb_tiles-1]);                           //1 2 3 4 5
 
-    pop(S);
     free_tile(T);
-
-    return;
+    
+    return pop(S);
 }
+
+
+void shuffle(stack* E){
+    stack* S = init_stack();
+    int rng;
+    srand((unsigned) time(NULL));
+    // algo de melange
+    while (E->nb_tiles > 0){
+        rng = rand() % E->nb_tiles;
+        push(S, erase(E, rng));
+    }
+    
+    //copy S back into E
+    while(S->nb_tiles > 0){
+        push(E, pop(S));
+    }
+
+    free_stack(S);
+
+}
+
+
+
+
+
 
 
 void print_stack(stack *S){
@@ -206,6 +229,7 @@ void print_stack(stack *S){
     }
     
 }
+
 
 
 stack* get_tiles_from_file(char* filename){
