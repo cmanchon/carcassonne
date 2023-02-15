@@ -58,6 +58,7 @@ tile* erase(stack *S, int ind);
 void push(stack *S, tile *T);
 void print_stack(stack *S);
 stack* get_tiles_from_file(char* filename);
+void place_at_base_of_stack(stack* S, tile* T);
 void shuffle(stack* S);
 
 

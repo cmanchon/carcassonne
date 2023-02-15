@@ -210,6 +210,23 @@ tile* erase(stack *S, int ind){
 }
 
 
+void place_at_base_of_stack(stack* S, tile* T){
+    //places T at the base of S, useful if a player needs to draw another tile
+    push(S, T);
+    tile* tmp= init_tile(' ', ' ', ' ', ' ', ' ', UND);
+
+    for (int i = 1 ; i < S->nb_tiles-1 ; i++){
+        copy_into(&S->tab[i], &S->tab[i+1]);
+    }
+
+
+
+    free_tile(tmp);
+}
+
+
+
+
 void shuffle(stack* E){
     stack* S = init_stack();
     int rng;
@@ -506,6 +523,10 @@ void print_grid(grid *G, int show_meeples, int show_bg_colors){
     //Affichage :
     printf("       ");
     printf("\033[1;37m");
+    if (minX > 0) minX--;
+    if (minY > 0) minY--;
+    if (maxX < NB_OF_TILES*2-1) maxX++;
+    if (maxY < NB_OF_TILES*2-1) maxY++;
     for (int i = minX ; i < maxX+1 ; i++){
         if (i >= 100) printf("%d      ", i);
         if (i < 100 && i >= 10) printf(" %d      ", i);
