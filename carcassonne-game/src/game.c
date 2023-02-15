@@ -90,7 +90,7 @@ void gameplay(game *G){
                 printf("Press:\n");
                 printf("\t\033[1;37mR\033[0m/\033[1;37mD\033[0m to rotate right\n");
                 printf("\t\033[1;37mL\033[0m/\033[1;37mG\033[0m to rotate left\n");
-                printf("\t\033[1;37mP\033[0m to pull again if tile cannot be placed\n");
+                printf("\t\033[1;37mP\033[0m to draw again if tile cannot be placed\n");
                 printf("\t\033[1;37mY\033[0m to validate\n");
                 scanf(" %c", &tmp);
                 printf("\n");
@@ -106,8 +106,8 @@ void gameplay(game *G){
                     tmp = ' ';
                 }
                 else if (tmp == 'P'){
-                    //place_at_base_of_stack(T)
-                    tile * T = pop(G->players[i]->hand);
+                    place_at_base_of_stack(G->players[i]->hand, T);
+                    T = pop(G->players[i]->hand);
                     tmp = ' ';
 
                 }
@@ -115,6 +115,9 @@ void gameplay(game *G){
                     free_tile(T);
                     free_game(G);
                     exit(1);
+                }
+                else{
+                    tmp = ' ';
                 }
                 j++;
             }
@@ -124,13 +127,46 @@ void gameplay(game *G){
             int buf = 0;
 
             while (buf == 0 || x == UND || y == UND){
+                printf("\n\nBOARD:\n\n");
+                print_grid(G->board, 0, 1);
+                printf("\n");
+                print_tile(T, 0, 1);
                 printf("\n\nWrite where you want to place the tile:\n");
                 scanf("%d %d", &x, &y);
                 buf = place_tile_on_grid(G->board, T, x, y, i);                     //might be i+1 idk
             }
 
+            print_grid(G->board, 0, 1);
             //meeple
-
+            char tmpm = ' ';
+            while (tmpm != 'Y' && tmpm != 'N' && tmpm != 'Q'){
+                printf("Place a meeple? (Y/N) ");
+                scanf(" %c", &tmpm);
+            }
+            if (tmpm == 'Y'){
+                int tmps = UND;
+                print_grid(G->board, 1, 0);
+                buf = 0;
+                while (buf == 0){
+                    printf("\nWhich side?\n");
+                    printf("\t  0\n");
+                    printf("\t3 4 1\n");
+                    printf("\t  2\n\n");
+                    scanf("%d", &tmps);
+                    if (!is_meeple_on_area(G->board, &G->board->tab[x][y], tmps)){
+                        buf = place_meeple_on_tile(&G->board->tab[x][y], tmps, G->players[i]);          //might be i+1 idk
+                    }
+                }
+                print_grid(G->board, 1, 0);
+            }
+            // else if (tmpm == 'N'){
+                
+            // }
+            else if (tmpm == 'Q'){
+                free_tile(T);
+                free_game(G);
+                exit(1);
+            }
 
 
             free_tile(T);

@@ -212,16 +212,15 @@ tile* erase(stack *S, int ind){
 
 void place_at_base_of_stack(stack* S, tile* T){
     //places T at the base of S, useful if a player needs to draw another tile
-    push(S, T);
     tile* tmp= init_tile(' ', ' ', ' ', ' ', ' ', UND);
+    push(S, tmp);
 
-    for (int i = 1 ; i < S->nb_tiles-1 ; i++){
-        copy_into(&S->tab[i], &S->tab[i+1]);
+    for (int i = S->nb_tiles-1 ; i > 0 ; i--){
+        copy_into(&S->tab[i-1], &S->tab[i]);
     }
+    copy_into(T, &S->tab[0]);
+    free_tile(T);
 
-
-
-    free_tile(tmp);
 }
 
 
@@ -268,6 +267,8 @@ void print_stack(stack *S){
 
 
 stack* get_tiles_from_file(char* filename){
+    int n = NB_OF_TILES;
+    // int n = 7;
     FILE *fh = fopen(filename, "r");
 
     if (fh == NULL){
@@ -275,18 +276,18 @@ stack* get_tiles_from_file(char* filename){
         exit(1);
     }
     stack* S = (stack*)malloc(sizeof(stack));
-    S->tab = (tile*)malloc(NB_OF_TILES*sizeof(tile));
-    for (int i = 0 ; i < NB_OF_TILES ; i++){
+    S->tab = (tile*)malloc(n*sizeof(tile));
+    for (int i = 0 ; i < n ; i++){
         S->tab[i].sides = (side*)malloc(5*sizeof(side));
     }
-    S->nb_tiles = NB_OF_TILES;
+    S->nb_tiles = n;
 
     size_t size;
     char *buf = NULL;
 
 
     
-    for (int j = 0 ; j < NB_OF_TILES ; j++){
+    for (int j = 0 ; j < n ; j++){
         S->tab[j].blason = 0;
         for (int i = 0 ; i < 5 ; i++){
             if (i==4){
@@ -543,7 +544,8 @@ void print_grid(grid *G, int show_meeples, int show_bg_colors){
                 printf("      ");
             }
             else{
-                printf("        ");
+                printf("         ");
+                // printf("        ");
             }
         }
         printf("\n");
@@ -564,7 +566,8 @@ void print_grid(grid *G, int show_meeples, int show_bg_colors){
                 // printf(" ");
             }
             else{
-                printf("        ");
+                printf("         ");
+                // printf("        ");
             }
         }
         printf("\n");
@@ -576,7 +579,8 @@ void print_grid(grid *G, int show_meeples, int show_bg_colors){
                 printf("      ");
             }
             else{
-                printf("        ");
+                printf("         ");
+                // printf("        ");
             }
         }
         printf("\n");

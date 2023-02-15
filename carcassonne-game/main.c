@@ -48,7 +48,8 @@ int main(void){
     // print_stack(S);
     // printf("before : %d\n", S->nb_tiles);
     // printf("-------------------------------------------------------------------\n\n");
-    // shuffle(S);
+    // tile* tmp = pop(S);
+    // place_at_base_of_stack(S, tmp);
     // print_stack(S);
     // printf("after: %d\n", S->nb_tiles);
     // free_stack(S);

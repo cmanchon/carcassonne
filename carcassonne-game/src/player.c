@@ -69,3 +69,14 @@ int place_meeple_on_tile(tile* T, int side, player* P){
 
     return 1;
 }
+
+
+
+
+int is_meeple_on_area(grid* G, tile* T, int s){
+    //checks if there's a meeple on the area of T.side[s]
+    
+    
+
+    return 0;
+}
