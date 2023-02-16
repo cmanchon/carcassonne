@@ -26,7 +26,7 @@ void free_game(game *G){
 }
 
 
-void deal_cards(game *G){
+void deal_tiles(game *G){
     //deals all the tiles from G.deck to G.players. to use at the start of the game
     int i = 0;
     while (G->deck->nb_tiles > 0){
@@ -65,7 +65,7 @@ game* start_game(char* filename){
     print_grid(G->board, 0, 1);
     free_tile(T);
     shuffle(G->deck);
-    deal_cards(G);
+    deal_tiles(G);
 
     return G;
 }
