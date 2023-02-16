@@ -149,6 +149,18 @@ void copy_into(tile *old, tile* new){
     new->blason = old->blason;
 }
 
+
+int adjacent_side(int s){
+    //returns the adjacent side of s on a grid
+    if (s == 0) return 2;
+    else if (s == 2) return 0;
+    else if (s == 1) return 3;
+    else if (s == 3) return 1;
+    else return UND;
+} 
+
+
+
 //STACK
 stack *init_stack() {
   stack *S = NULL;

@@ -153,15 +153,12 @@ void gameplay(game *G){
                     printf("\t3 4 1\n");
                     printf("\t  2\n\n");
                     scanf("%d", &tmps);
-                    if (!is_meeple_on_area(G->board, &G->board->tab[x][y], tmps)){
+                    if (!is_meeple_on_area(G->board, x, y, tmps)){
                         buf = place_meeple_on_tile(&G->board->tab[x][y], tmps, G->players[i]);          //might be i+1 idk
                     }
                 }
                 print_grid(G->board, 1, 0);
             }
-            // else if (tmpm == 'N'){
-                
-            // }
             else if (tmpm == 'Q'){
                 free_tile(T);
                 free_game(G);

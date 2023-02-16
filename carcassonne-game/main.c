@@ -37,7 +37,6 @@ int main(void){
     // free_tile(M);
     
     game *G = start_game("data/tuiles_base_simplifiees.csv");
-    deal_cards(G);
     gameplay(G);
     free_game(G);
     

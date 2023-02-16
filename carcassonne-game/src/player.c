@@ -73,8 +73,17 @@ int place_meeple_on_tile(tile* T, int side, player* P){
 
 
 
-int is_meeple_on_area(grid* G, tile* T, int s){
-    //checks if there's a meeple on the area of T.side[s]
+int is_meeple_on_area(grid* G, int x, int y, int s){
+    //checks if there's a meeple on the area of the side s of the tile at (x, y)
+    char type = G->tab[x][y].sides[s].type;
+    if (s == 4){
+        if (G->tab[x][y].sides[0].type == type && G->tab[x][y].sides[1].type == type && G->tab[x][y].sides[2].type == type && G->tab[x][y].sides[3].type == type && G->tab[x][y].sides[s].meeple != UND) return 1;          //probably abbaye
+
+    }
+    else{
+        // int adj_s = adjacent_side(s);
+
+    }
     
     
 

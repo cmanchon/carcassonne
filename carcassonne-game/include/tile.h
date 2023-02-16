@@ -46,6 +46,7 @@ void free_tile(tile* T);
 void print_tile_info(tile* T);
 void print_tile(tile *T, int show_meeples, int show_bg_colors);
 void rotate_tile(tile* T, int degrees);
+int adjacent_side(int s);
 
 
 //STACK
