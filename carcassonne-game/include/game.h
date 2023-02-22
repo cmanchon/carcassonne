@@ -18,4 +18,10 @@ void free_game(game* G);
 game* start_game(char* filename);
 void deal_tiles(game *G);
 void gameplay(game* G);
+
+
+game* start_creative_game();
+void free_creative_game(game *GC);
+void creative_gameplay(game* GC);
+
 #endif

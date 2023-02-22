@@ -179,7 +179,7 @@ void free_stack(stack *S){
     free(S);
 }
 
-tile* pop(stack *S){s
+tile* pop(stack *S){
     if (S->nb_tiles == 0){
         return NULL;
     }
