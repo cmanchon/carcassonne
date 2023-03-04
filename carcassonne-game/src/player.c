@@ -74,16 +74,33 @@ int place_meeple_on_tile(tile* T, int side, player* P){
 
 
 int is_meeple_on_area(grid* G, int x, int y, int s){
+    //fonction récursive
     //checks if there's a meeple on the area of the side s of the tile at (x, y)
     char type = G->tab[x][y].sides[s].type;
-    if (s == 4){                //center
-        if (G->tab[x][y].sides[0].type == type && G->tab[x][y].sides[1].type == type && G->tab[x][y].sides[2].type == type && G->tab[x][y].sides[3].type == type && G->tab[x][y].sides[s].meeple != UND) return 1;          //probably abbaye
 
-    }
-    else{
-        // int adj_s = adjacent_side(s);
+    //conditions d'arrêt
+    if (G->tab[x][y].sides[s].meeple != UND) return 1;
+    // if (G->tab[x][y].sides[4].type != type) return G->tab[x][y].sides[4].meeple; ?????
+    // if()....
+    else {              //centre == type
+        for (int i = 0 ; i < 4 ; i++){
+            if (i != s){        //on ne repasse pas par le même côté
+                if (G->tab[x][y].sides[i].type == type && G->tab[x][y].sides[4].type == type){
+                    if (G->tab[x][y].sides[i].meeple != UND) return 1;
+                    int adj_side = adjacent_side(s);
+                    int new_x = x, new_y = y;
+                    if (i == 0) new_y--;
+                    if (i == 1) new_x++;
+                    if (i == 2) new_y++;
+                    if (i == 3) new_x--;
+                    return is_meeple_on_area(G, new_x, new_y, adj_side);
+                }
+                else return 0;
 
+            }
+        }
     }
+
     
     
 

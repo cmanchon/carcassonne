@@ -267,9 +267,10 @@ void creative_gameplay(game* GC){
                 printf("\t3 4 1\n");
                 printf("\t  2\n\n");
                 scanf("%d", &tmps);
-                if (!is_meeple_on_area(GC->board, x, y, tmps)){
+                // if (!is_meeple_on_area(GC->board, x, y, tmps)){
+                    printf("is meeple on area = %d\n", is_meeple_on_area(GC->board, x, y, tmps));
                     buf = place_meeple_on_tile(&GC->board->tab[x][y], tmps, GC->players[0]);          //might be i+1 idk
-                }
+                // }
             }
             print_grid(GC->board, 1, 0);
         }

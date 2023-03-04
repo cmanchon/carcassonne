@@ -2,8 +2,6 @@
     "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools",
     "files.associations": {
         "*.rmd": "markdown",
-        "tile.h": "c",
-        "player.h": "c",
         "game.C": "cpp"
     }
 }
