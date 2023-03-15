@@ -5,9 +5,15 @@ OPT = -O3
 main: main.o tile.o player.o game.o
 	$(CC) $(OPT) obj/main.o obj/tile.o obj/player.o obj/game.o -o main
 
+creative: main-creative.o tile.o player.o game.o
+	$(CC) $(OPT) obj/main-creative.o obj/tile.o obj/player.o obj/game.o -o main-creative
+
 
 main.o: main.c
 	$(CC) -c $(CFLAGS) main.c -o obj/main.o
+
+main-creative.o: main-creative.c
+	$(CC) -c $(CFLAGS) main-creative.c -o obj/main-creative.o
 
 
 tile.o: src/tile.c include/tile.h 

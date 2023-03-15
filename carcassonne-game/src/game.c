@@ -153,6 +153,7 @@ void gameplay(game *G){
                     printf("\t3 4 1\n");
                     printf("\t  2\n\n");
                     scanf("%d", &tmps);
+                    if (tmps < 0) break;        //if meeple cannot be placed: enter negative value
                     if (!is_meeple_on_area(G->board, x, y, tmps)){
                         buf = place_meeple_on_tile(&G->board->tab[x][y], tmps, G->players[i]);          //might be i+1 idk
                     }
@@ -217,6 +218,11 @@ void creative_gameplay(game* GC){
             for (int i = 0 ; i < 5 ; i++){
                 printf("\nside %d : ", i);
                 scanf(" %c", &tmp);
+                if (tmp == 'Q'){
+                    free_tile(T);
+                    free_creative_game(GC);
+                    exit(1);
+                }
                 T->sides[i].type = tmp;
             }
             print_tile(T, 0, 1);
@@ -267,6 +273,8 @@ void creative_gameplay(game* GC){
                 printf("\t3 4 1\n");
                 printf("\t  2\n\n");
                 scanf("%d", &tmps);
+                if (tmps < 0) break;        //if meeple cannot be placed: enter negative value
+
                 // if (!is_meeple_on_area(GC->board, x, y, tmps)){
                     printf("is meeple on area = %d\n", is_meeple_on_area(GC->board, x, y, tmps));
                     buf = place_meeple_on_tile(&GC->board->tab[x][y], tmps, GC->players[0]);          //might be i+1 idk
