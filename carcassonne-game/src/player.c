@@ -78,31 +78,71 @@ int is_meeple_on_area(grid* G, int x, int y, int s){
     //checks if there's a meeple on the area of the side s of the tile at (x, y)
     char type = G->tab[x][y].sides[s].type;
 
-    //conditions d'arrêt
-    if (G->tab[x][y].sides[s].meeple != UND) return 1;
-    // if (G->tab[x][y].sides[4].type != type) return G->tab[x][y].sides[4].meeple; ?????
-    // if()....
-    else {              //centre == type
-        for (int i = 0 ; i < 4 ; i++){
-            if (i != s){        //on ne repasse pas par le même côté
-                if (G->tab[x][y].sides[i].type == type && G->tab[x][y].sides[4].type == type){
-                    if (G->tab[x][y].sides[i].meeple != UND) return 1;
-                    int adj_side = adjacent_side(s);
-                    int new_x = x, new_y = y;
-                    if (i == 0) new_y--;
-                    if (i == 1) new_x++;
-                    if (i == 2) new_y++;
-                    if (i == 3) new_x--;
-                    return is_meeple_on_area(G, new_x, new_y, adj_side);
-                }
-                else return 0;
+    // conditions d'arrêt
+    int new_x = x, new_y = y;
+    if (s == 0) new_y--;
+    if (s == 1) new_x++;
+    if (s == 2) new_y++;
+    if (s == 3) new_x--;
+    if (s!= 4 && G->tab[new_x][new_y].sides[adjacent_side(s)].meeple != UND) return 1;
 
+    if (G->tab[x][y].sides[s].meeple != UND) return 1;
+    if (G->tab[x][y].sides[4].type == type){
+        if (G->tab[x][y].sides[4].meeple != UND) return 1;
+        for (int i = 0 ; i < 4 ; i++){
+            if (i != s){
+                if (G->tab[x][y].sides[i].type == type){
+                    if (G->tab[x][y].sides[4].meeple != UND) return 1;
+                }
             }
         }
     }
+    
+                  
+    for (int i = 0 ; i < 4 ; i++){
+        // if (i != s){        //on ne repasse pas par le même côté
+            if (G->tab[x][y].sides[i].type == type && G->tab[x][y].sides[4].type == type){
+                printf("T1\n");
+                if (G->tab[x][y].sides[i].meeple != UND) return 1;
+                int adj_side = adjacent_side(i);
+                int new_x = x, new_y = y;
+                if (i == 0) new_y--;
+                if (i == 1) new_x++;
+                if (i == 2) new_y++;
+                if (i == 3) new_x--;
+                if (G->tab[new_x][new_y].id != UND){
+                    printf("test ? i = %d, x = %d, y = %d\n", i, new_x, new_y);
+                    return is_meeple_on_area(G, new_x, new_y, adj_side);
+                }
+            }
+            // else return 0;
 
+        // }
+    }
     
     
+
+    //fonction non récursive ?
+    // if (G->tab[x][y].sides[s].meeple != UND) return 1;
+    // if (G->tab[x][y].sides[4].type == type){        //centre = type
+    //     if (G->tab[x][y].sides[4].meeple != UND) return 1;
+    //     for (int i = 0 ; i < 4 ; i++){
+    //         if (i != s){
+    //             if (G->tab[x][y].sides[i].type == type){
+    //                 if (G->tab[x][y].sides[4].meeple != UND) return 1;
+    //             }
+    //         }
+    //     }
+    //     //a parcourir les tuiles adjacentes
+    // }
+    // int new_x = x, new_y = y;
+    // int c = s;
+    // if (c == 0) new_y--;
+    // if (c == 1) new_x++;
+    // if (c == 2) new_y++;
+    // if (c == 3) new_x--;
+
+
 
     return 0;
 }

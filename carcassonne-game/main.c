@@ -6,14 +6,14 @@
 int main(void){
     
     //TEST GAME
-    game *G = start_game("data/tuiles_base_simplifiees.csv");
-    gameplay(G);
-    free_game(G);
+    // game *G = start_game("data/tuiles_base_simplifiees.csv");
+    // gameplay(G);
+    // free_game(G);
 
     //TEST CREATIVE GAME
-    // game *GC = start_creative_game();
-    // creative_gameplay(GC);
-    // free_creative_game(GC);
+    game *GC = start_creative_game();
+    creative_gameplay(GC);
+    free_creative_game(GC);
     
 
     
