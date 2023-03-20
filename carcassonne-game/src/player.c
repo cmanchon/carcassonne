@@ -161,7 +161,7 @@ int is_area_closed(grid* G, int x, int y, int s){
         if (G->tab[x][y].sides[4].type == type){
             nb_points ++;       //pour side 4
             for (int i = 0 ; i < 4 ; i++){
-                if (G->tab[x][y].sides[i] == type){
+                if (G->tab[x][y].sides[i].type == type && i!=s){
                     int new_x = x, new_y = y;
                     if (i == 0) new_y--;
                     if (i == 1) new_x++;
@@ -170,9 +170,10 @@ int is_area_closed(grid* G, int x, int y, int s){
                     if (new_x >= NB_OF_TILES*2-1 || new_x <= 0 || new_y >= NB_OF_TILES*2-1 || new_y <= 0) return -1;    //on sort de la grille
                     else if (G->tab[new_x][new_y].id == UND) return -1;     //tuile adjacente vide 
                     else {      //tuile adjacente non vide et existante
-                        int tmp = is_area_closed(G, new_x, new_y, adjacent_side(i)) + 1;         //+1 pour current side
-                        if (tmp != -1) nb_points+=tmp;
-                        return nb_points;           //jsp si il faut return mtn
+                        int tmp = is_area_closed(G, new_x, new_y, adjacent_side(i));         //+1 pour current side
+                        if (tmp != -1) nb_points+=tmp+1;
+                        else return-1;
+                        // return nb_points;           //jsp si il faut return mtn
                     }   
 
                 }
@@ -189,49 +190,18 @@ int is_area_closed(grid* G, int x, int y, int s){
             if (new_x >= NB_OF_TILES*2-1 || new_x <= 0 || new_y >= NB_OF_TILES*2-1 || new_y <= 0) return -1;    //on sort de la grille
             else if (G->tab[new_x][new_y].id == UND) return -1;     //tuile adjacente vide 
             else {      //tuile adjacente non vide et existante
-                int tmp = is_area_closed(G, new_x, new_y, adjacent_side(s)) + 1;         //+1 pour current side
-                if (tmp != -1) nb_points+=tmp;
-                return nb_points;           //jsp si il faut return mtn
+                int tmp = is_area_closed(G, new_x, new_y, adjacent_side(s));         //+1 pour current side
+                if (tmp != -1) nb_points+=tmp+1;
+                else return-1;
+                // return nb_points;           //jsp si il faut return mtn
             }   
             // } 
 
         }
     }
 
-
-    //j'ai pas touché en dessous
-    // if (s!= 4 && G->tab[new_x][new_y].sides[adjacent_side(s)].meeple != UND) return 1;
-
-    // if (G->tab[x][y].sides[s].meeple != UND) return 1;
-    // if (G->tab[x][y].sides[4].type == type){
-    //     if (G->tab[x][y].sides[4].meeple != UND) return 1;
-    //     for (int i = 0 ; i < 4 ; i++){
-    //         if (i != s){
-    //             if (G->tab[x][y].sides[i].type == type){
-    //                 if (G->tab[x][y].sides[4].meeple != UND) return 1;
-    //             }
-    //         }
-    //     }
-    // }
     
-                  
-    // for (int i = 0 ; i < 4 ; i++){
-    //     if (G->tab[x][y].sides[i].type == type && G->tab[x][y].sides[4].type == type){
-    //         if (G->tab[x][y].sides[i].meeple != UND) return 1;
-    //         int adj_side = adjacent_side(i);
-    //         int new_x = x, new_y = y;
-    //         if (i == 0) new_y--;
-    //         if (i == 1) new_x++;
-    //         if (i == 2) new_y++;
-    //         if (i == 3) new_x--;
-    //         if (G->tab[new_x][new_y].id != UND){
-    //             return is_meeple_on_area(G, new_x, new_y, adj_side);
-    //         }
-    //     }
-
-    // }
-    
-    
+    if (nb_points == 0) return -1;
     return nb_points;
 
 }

@@ -137,6 +137,12 @@ void gameplay(game *G){
             }
 
             print_grid(G->board, 0, 1);
+            printf("\nis_area_closed(G->board, x, y, 0) = %d\n\n", is_area_closed(G->board, x, y, 0));
+            printf("\nis_area_closed(G->board, x, y, 1) = %d\n\n", is_area_closed(G->board, x, y, 1));
+            printf("\nis_area_closed(G->board, x, y, 2) = %d\n\n", is_area_closed(G->board, x, y, 2));
+            printf("\nis_area_closed(G->board, x, y, 3) = %d\n\n", is_area_closed(G->board, x, y, 3));
+            printf("\nis_area_closed(G->board, x, y, 4) = %d\n\n", is_area_closed(G->board, x, y, 4));
+
             //meeple
             char tmpm = ' ';
             while (tmpm != 'Y' && tmpm != 'N' && tmpm != 'Q'){
@@ -248,6 +254,8 @@ void creative_gameplay(game* GC){
             scanf("%d %d", &x, &y);
             buf = place_tile_on_grid(GC->board, T, x, y, 1);                     //might be i+1 idk
         }
+
+        // printf("\nis_area_closed(GC->board, x, y, 0) = %d\n\n", is_area_closed(GC->board, x, y, 0));
 
         //meeple
         char tmpm = ' ';
