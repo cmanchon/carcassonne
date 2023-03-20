@@ -389,20 +389,23 @@ void free_grid(grid *G){
 int place_tile_on_grid(grid* G, tile *T, int x, int y, int player){
     //returns 1 si could be placed, 0 otherwise
 
-    if (G->tab[x][y].id != UND){
+    if (x <= 0 || y <= 0 || x >= NB_OF_TILES*2-1 || y>= NB_OF_TILES*2-1) return 0;
+    else if (G->tab[x][y].id != UND){
         //there's already a tile at this place
         return 0;
     }
-    else if (x <= 0 || y <= 0 || x >= NB_OF_TILES*2-1 || y>= NB_OF_TILES*2-1) return 0;
+    //A GERER : BLASONS ET VILLES
     else if (G->tab[x-1][y].id == UND && G->tab[x][y-1].id == UND && G->tab[x+1][y].id == UND && G->tab[x][y+1].id == UND && G->nb_tiles > 0) return 0;
-    else if (G->tab[x-1][y].id != UND && x-1 >=0 && G->tab[x-1][y].sides[1].type != T->sides[3].type) return 0;
+    else if (G->tab[x-1][y].id != UND && x-1 >=0){
+        if (G->tab[x-1][y].sides[1].type == 'c' && T->sides[3].type != 'c' && T->sides[3].type != 'b' || G->tab[x-1][y].sides[1].type == 'b' && T->sides[3].type == 'b' && T->sides[3].type == 'c') return 0;
+        if (G->tab[x-1][y].sides[1].type != T->sides[3].type) return 0;
+    } 
+    //a continuer comme au dessus
     else if (G->tab[x][y-1].id != UND && y-1 >=0 && G->tab[x][y-1].sides[2].type != T->sides[0].type) return 0;
     else if (G->tab[x+1][y].id != UND && x+1 <=NB_OF_TILES*2-1 && G->tab[x+1][y].sides[3].type != T->sides[1].type) return 0;
     else if (G->tab[x][y+1].id != UND && y+1 <= NB_OF_TILES*2-1 && G->tab[x][y+1].sides[0].type != T->sides[2].type) return 0;
 
     //tile can be placed
-    //G->tab[x][y] = *T;
-    //G->tab[x][y].sides = T.sides;
     
     G->tab[x][y].id = T->id;
     G->tab[x][y].blason = T->blason;

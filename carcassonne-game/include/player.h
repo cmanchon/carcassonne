@@ -16,6 +16,7 @@ player* init_player(int numero, int meeple);
 void free_player(player* P);
 
 void print_player(player *P);
+void print_players_hand(player *P);
 
 int place_meeple_on_tile(tile* T, int side, player* P);
 int is_meeple_on_area(grid* G, int x, int y, int s);
