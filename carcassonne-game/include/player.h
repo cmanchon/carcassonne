@@ -2,6 +2,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#define VSIZE 50                //size of *visited_tiles
+
 typedef struct player_t{
     int id;
     int meeple_color;
@@ -19,8 +21,11 @@ void print_player(player *P);
 void print_players_hand(player *P);
 
 int place_meeple_on_tile(tile* T, int side, player* P);
+int is_in(int *tab, int value);
+void append_visited_tiles(int value);
+void print_visited_tiles();
 int is_meeple_on_area(grid* G, int x, int y, int s);
-int is_area_closed(grid* G, int x, int y, int s);
+int is_area_closed(grid* G, int x, int y, int s, int start);
 
 
 #endif
