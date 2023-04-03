@@ -163,14 +163,15 @@ int is_area_closed(grid* G, int x, int y, int s, int start){
             //quoique si en fait pcq sur une tuile il y a que des blasons pas de ville ou l'inverse
     //BREF en tout cas faut compter les points
 
-    printf("(%d ; %d)\n\n", x, y);
+    //on dirait que quand c'est des big structures ça compte 2 de plus ? donc ya moyen d'enlever 2 à la fin, et le mieux ce serait donc de faire *2 par exemple à la fin pour compter les points plutôt que au fur et à mesure
+    printf("visiting (%d ; %d)\t start = %d\n\n", x, y, start);
     if (start){
         for (int i = 0 ; i < VSIZE ; i++){
             visited_tiles[i] = UND;
         }
     } 
 
-    if (G->tab[x][y].id == UND || is_in(visited_tiles, G->tab[x][y].id)) return -1;
+    if (G->tab[x][y].id == UND /*|| is_in(visited_tiles, G->tab[x][y].id)*/) return -1;
 
 
     print_visited_tiles();
@@ -217,9 +218,11 @@ int is_area_closed(grid* G, int x, int y, int s, int start){
                         if (!is_in(visited_tiles, G->tab[new_x][new_y].id)){
                             append_visited_tiles(G->tab[new_x][new_y].id);
                             int tmp = is_area_closed(G, new_x, new_y, adjacent_side(i), 0);         //+1 pour current side
-                            printf("if tmp = %d ;  s=%d ; x = %d ; y = %d, i = %d\n", tmp, s, new_x, new_y, i);
+                            printf("if tmp = %d ;  s=%d ; x = %d ; y = %d, i = %d\t%d points\n", tmp, s, new_x, new_y, i, nb_points);
                             if (tmp != -1) nb_points+=tmp+1;
-                            else return-1;
+                            else {
+                                return-1; 
+                            }
                             // return nb_points;           //jsp si il faut return mtn
                         }
                     }   
@@ -237,7 +240,9 @@ int is_area_closed(grid* G, int x, int y, int s, int start){
             // if (s != 4 && G->tab[x][y].sides[4].type != type){
             if (new_x >= NB_OF_TILES*2-1 || new_x <= 0 || new_y >= NB_OF_TILES*2-1 || new_y <= 0) return -1;    //on sort de la grille
             else if (G->tab[new_x][new_y].id == UND) return -1;     //tuile adjacente vide 
-            else if (start == 0) return nb_points+1;
+            else if (start == 0){
+                return nb_points+1;
+            } 
             else {      //tuile adjacente non vide et existante
                 printf("tmping else\t\t\t%d points ; s=%d ; x = %d ; y = %d\n", nb_points, s, new_x, new_y);
                 print_visited_tiles();
@@ -245,9 +250,11 @@ int is_area_closed(grid* G, int x, int y, int s, int start){
                     append_visited_tiles(G->tab[new_x][new_y].id);
                     print_visited_tiles();
                     int tmp = is_area_closed(G, new_x, new_y, adjacent_side(s), 0);         //+1 pour current side
-                    printf("else tmp = %d ;  s=%d ; x = %d ; y = %d\n", tmp, s, new_x, new_y);
+                    printf("else tmp = %d ;  s=%d ; x = %d ; y = %d\t%d points\n", tmp, s, new_x, new_y, nb_points);
                     if (tmp != -1) nb_points+=tmp+1;
-                    else return-1;
+                    else {
+                        return-1;
+                    }
                     // return nb_points;           //jsp si il faut return mtn
 
                 }

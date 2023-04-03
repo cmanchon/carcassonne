@@ -137,11 +137,11 @@ void gameplay(game *G){
             }
 
             print_grid(G->board, 0, 1);
-            printf("\nis_area_closed(G->board, x, y, 0, 1) = %d\n\n", is_area_closed(G->board, x, y, 0, 1));
-            printf("\nis_area_closed(G->board, x, y, 1, 1) = %d\n\n", is_area_closed(G->board, x, y, 1, 1));
-            printf("\nis_area_closed(G->board, x, y, 2, 1) = %d\n\n", is_area_closed(G->board, x, y, 2, 1));
-            printf("\nis_area_closed(G->board, x, y, 3, 1) = %d\n\n", is_area_closed(G->board, x, y, 3, 1));
-            printf("\nis_area_closed(G->board, x, y, 4, 1) = %d\n\n", is_area_closed(G->board, x, y, 4, 1));
+            printf("\nis_area_closed(G->board, x, y, \033[1;37m0\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G->board, x, y, 0, 1));
+            printf("\nis_area_closed(G->board, x, y, \033[1;37m1\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G->board, x, y, 1, 1));
+            printf("\nis_area_closed(G->board, x, y, \033[1;37m2\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G->board, x, y, 2, 1));
+            printf("\nis_area_closed(G->board, x, y, \033[1;37m3\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G->board, x, y, 3, 1));
+            printf("\nis_area_closed(G->board, x, y, \033[1;37m4\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G->board, x, y, 4, 1));
 
             //meeple
             char tmpm = ' ';
