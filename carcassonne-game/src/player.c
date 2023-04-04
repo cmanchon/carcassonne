@@ -171,7 +171,7 @@ int is_area_closed(grid* G, int x, int y, int s, int start){
         }
     } 
 
-    if (G->tab[x][y].id == UND /*|| is_in(visited_tiles, G->tab[x][y].id)*/) return -1;
+    if (G->tab[x][y].id == UND) return -1;
 
 
     print_visited_tiles();
@@ -179,7 +179,6 @@ int is_area_closed(grid* G, int x, int y, int s, int start){
     int nb_points = 0; 
     // conditions d'arrêt
     //      abbaye
-    //A TEST
     if (s == 4 && G->tab[x][y].sides[0].type != type && G->tab[x][y].sides[1].type != type && G->tab[x][y].sides[2].type != type && G->tab[x][y].sides[3].type != type && type == 'a'){      
         if (y < NB_OF_TILES*2-1 && y > 0){
             if (x>0){
@@ -197,12 +196,15 @@ int is_area_closed(grid* G, int x, int y, int s, int start){
             if (G->tab[x][y].id != UND) nb_points++;
 
         }
-        return nb_points;
+        if (G->tab[x][y].sides[4].meeple != UND){
+            //donner les les points au joueur qui a cette meeple color
+        }
+        return nb_points;   //en fait faudrait retourner que si c'est elle est complétée en soit....
     }
     if (s != 4){
         //on compte les points de cette tuile :
         if (G->tab[x][y].sides[4].type == type){
-            nb_points ++;       //pour side 4
+            // nb_points ++;       //pour side 4
             for (int i = 0 ; i < 4 ; i++){
                 if (G->tab[x][y].sides[i].type == type){
                     int new_x = x, new_y = y;

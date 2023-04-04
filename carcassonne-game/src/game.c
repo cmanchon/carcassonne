@@ -77,6 +77,7 @@ void gameplay(game *G){
 
     while (G->board->nb_tiles < (NB_OF_TILES*2-1) * (NB_OF_TILES*2-1)){
         for (int i = 0 ; i < G->nb_players ; i++){
+            if (G->players[i]->hand->nb_tiles == 0) continue;
             print_player(G->players[i]);
             printf("\n\nBOARD:\n\n");
             print_grid(G->board, 0, 1);
