@@ -15,8 +15,14 @@ typedef struct game_t{
 
 game* init_game(char* filename, int nb_players);
 void free_game(game* G);
-game* start_game(char* filename);
 void deal_tiles(game *G);
+
+int is_in(int *tab, int value);
+void append_visited_tiles(int value);
+void print_visited_tiles();
+int is_area_closed(game* G, int x, int y, int s, int start);
+
+game* start_game(char* filename);
 void gameplay(game* G);
 
 

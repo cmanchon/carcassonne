@@ -36,6 +36,182 @@ void deal_tiles(game *G){
     }
 }
 
+
+
+int visited_tiles[VSIZE] = {UND};      
+
+int is_in(int *tab, int value){
+    //checks if value is in tab
+    int i = 0;
+    while (tab[i] != UND && i < VSIZE){
+        if (tab[i] == value) return 1;
+        i++;
+    }
+    return 0;
+}
+
+void append_visited_tiles(int value){
+    int i = 0 ;
+    while (visited_tiles[i] != UND && i < VSIZE){
+        i++;
+    }
+    if (visited_tiles[i] == UND) visited_tiles[i] = value;
+}
+
+void print_visited_tiles(){
+    int i = 0;
+    printf("visited_tiles = (");
+    while (visited_tiles[i] != UND && i < VSIZE){
+        printf("%d ; ", visited_tiles[i]);
+        i++;
+    }
+    printf(")\n");
+}
+
+
+int is_area_closed(game* Game, int x, int y, int s, int start){
+    //checks if in area is closed, returns the number of points if yes and -1 otherwise. gives the points to the player that has the biggest number of meeples on area
+    //fonction recursive
+    //copié collé de is_meeple_on_area donc attention 
+    //faudrait gérer les blasons..... donc if G.tab machin == type marche plus
+            //quoique si en fait pcq sur une tuile il y a que des blasons pas de ville ou l'inverse
+    //BREF en tout cas faut compter les points
+
+    //on dirait que quand c'est des big structures ça compte 2 de plus ? donc ya moyen d'enlever 2 à la fin, et le mieux ce serait donc de faire *2 par exemple à la fin pour compter les points plutôt que au fur et à mesure
+    printf("visiting (%d ; %d)\t start = %d\n\n", x, y, start);
+    if (start){
+        for (int i = 0 ; i < VSIZE ; i++){
+            visited_tiles[i] = UND;
+        }
+    } 
+
+    if (Game->board->tab[x][y].id == UND) return -1;
+
+
+    print_visited_tiles();
+    char type = Game->board->tab[x][y].sides[s].type;
+    int nb_points = 0; 
+    if (type == 'b') nb_points+=2;
+    // conditions d'arrêt
+    //      abbaye
+    if (s == 4 && Game->board->tab[x][y].sides[0].type != type && Game->board->tab[x][y].sides[1].type != type && Game->board->tab[x][y].sides[2].type != type && Game->board->tab[x][y].sides[3].type != type && type == 'a'){      
+        if (y < NB_OF_TILES*2-1 && y > 0){
+            if (x>0){
+                if (Game->board->tab[x-1][y-1].id != UND) nb_points++;
+                if (Game->board->tab[x-1][y].id != UND) nb_points++;
+                if (Game->board->tab[x-1][y+1].id != UND) nb_points++;
+            }
+            if (x < NB_OF_TILES*2-1){
+                if (Game->board->tab[x+1][y].id != UND) nb_points++;
+                if (Game->board->tab[x+1][y-1].id != UND) nb_points++;
+                if (Game->board->tab[x+1][y+1].id != UND) nb_points++;
+            }
+            if (Game->board->tab[x][y+1].id != UND) nb_points++;
+            if (Game->board->tab[x][y-1].id != UND) nb_points++;
+            if (Game->board->tab[x][y].id != UND) nb_points++;
+
+        }
+        if (Game->board->tab[x][y].sides[4].meeple != UND){
+            //donner les les points au joueur qui a cette meeple color
+        }
+        if (nb_points == 9) return nb_points;   // retourner que si c'est elle est complétée en soit....
+        else return -1;
+    }
+    if (s != 4){
+        //on compte les points de cette tuile :
+        if (Game->board->tab[x][y].sides[4].type == type){
+            // nb_points ++;       //pour side 4
+            for (int i = 0 ; i < 4 ; i++){
+                if (Game->board->tab[x][y].sides[i].type == type){
+                    int new_x = x, new_y = y;
+                    if (i == 0) new_y--;
+                    if (i == 1) new_x++;
+                    if (i == 2) new_y++;
+                    if (i == 3) new_x--;
+                    if (new_x >= NB_OF_TILES*2-1 || new_x <= 0 || new_y >= NB_OF_TILES*2-1 || new_y <= 0) return -1;    //on sort de la grille
+                    else if (Game->board->tab[new_x][new_y].id == UND) return -1;     //tuile adjacente vide 
+                    else if (i != s){      //tuile adjacente non vide et existante
+                        printf("tmping if\t\t\t%d points ; s=%d ; x = %d ; y = %d ; i = %d\n", nb_points, s, new_x, new_y, i);
+                        print_visited_tiles();
+                        if (!is_in(visited_tiles, Game->board->tab[new_x][new_y].id)){
+                            append_visited_tiles(Game->board->tab[new_x][new_y].id);
+                            int tmp = is_area_closed(Game, new_x, new_y, adjacent_side(i), 0);         //+1 pour current side
+                            printf("if tmp = %d ;  s=%d ; x = %d ; y = %d, i = %d\t%d points\n", tmp, s, new_x, new_y, i, nb_points);
+                            if (tmp != -1){
+                                if (type == 'c' || type == 'b'){
+                                    nb_points+=tmp+2;
+                                }
+                                else{
+                                    nb_points+=tmp+1;
+                                }
+                            } 
+                            else {
+                                return-1; 
+                            }
+                            // return nb_points;           //jsp si il faut return mtn
+                        }
+                    }   
+
+                }
+            } 
+
+        }
+        else{
+            int new_x = x, new_y = y;
+            if (s == 0) new_y--;
+            if (s == 1) new_x++;
+            if (s == 2) new_y++;
+            if (s == 3) new_x--;
+            // if (s != 4 && Game->board->tab[x][y].sides[4].type != type){
+            if (new_x >= NB_OF_TILES*2-1 || new_x <= 0 || new_y >= NB_OF_TILES*2-1 || new_y <= 0) return -1;    //on sort de la grille
+            else if (Game->board->tab[new_x][new_y].id == UND) return -1;     //tuile adjacente vide 
+            else if (start == 0){
+                if (type == 'b' || type == 'c') return nb_points+2;
+                else return nb_points+1;
+            } 
+            else {      //tuile adjacente non vide et existante
+                printf("tmping else\t\t\t%d points ; s=%d ; x = %d ; y = %d\n", nb_points, s, new_x, new_y);
+                print_visited_tiles();
+                if (!is_in(visited_tiles, Game->board->tab[new_x][new_y].id)){
+                    append_visited_tiles(Game->board->tab[new_x][new_y].id);
+                    print_visited_tiles();
+                    int tmp = is_area_closed(Game, new_x, new_y, adjacent_side(s), 0);         //+1 pour current side
+                    printf("else tmp = %d ;  s=%d ; x = %d ; y = %d\t%d points\n", tmp, s, new_x, new_y, nb_points);
+                    if (tmp != -1) 
+                        if (type == 'c' || type == 'b'){
+                            nb_points+=tmp+2;
+                        }
+                        else{
+                            nb_points+=tmp+1;
+                        }
+                    else {
+                        return-1;
+                    }
+                    // return nb_points;           //jsp si il faut return mtn
+
+                }
+            }   
+            // } 
+
+        }
+    }
+
+    
+    printf("return %d\n", nb_points);
+    if (nb_points == 0 || (nb_points == 2 && type=='b')) return -1;
+    return nb_points;
+
+}
+
+
+
+
+
+
+
+
+//GAME
+
 game* start_game(char* filename){
     //affichage plus sérieux à faire
     printf("welcome to carcassonne\n\n");
@@ -138,11 +314,11 @@ void gameplay(game *G){
             }
 
             print_grid(G->board, 0, 1);
-            printf("\nis_area_closed(G->board, x, y, \033[1;37m0\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G->board, x, y, 0, 1));
-            printf("\nis_area_closed(G->board, x, y, \033[1;37m1\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G->board, x, y, 1, 1));
-            printf("\nis_area_closed(G->board, x, y, \033[1;37m2\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G->board, x, y, 2, 1));
-            printf("\nis_area_closed(G->board, x, y, \033[1;37m3\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G->board, x, y, 3, 1));
-            printf("\nis_area_closed(G->board, x, y, \033[1;37m4\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G->board, x, y, 4, 1));
+            printf("\nis_area_closed(G->board, x, y, \033[1;37m0\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G, x, y, 0, 1));
+            printf("\nis_area_closed(G->board, x, y, \033[1;37m1\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G, x, y, 1, 1));
+            printf("\nis_area_closed(G->board, x, y, \033[1;37m2\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G, x, y, 2, 1));
+            printf("\nis_area_closed(G->board, x, y, \033[1;37m3\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G, x, y, 3, 1));
+            printf("\nis_area_closed(G->board, x, y, \033[1;37m4\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G, x, y, 4, 1));
 
             //meeple
             char tmpm = ' ';
@@ -256,7 +432,7 @@ void creative_gameplay(game* GC){
             buf = place_tile_on_grid(GC->board, T, x, y, 1);                     //might be i+1 idk
         }
 
-        printf("\nis_area_closed(GC->board, x, y, 0, 1) = %d\n\n", is_area_closed(GC->board, x, y, 0, 1));
+        printf("\nis_area_closed(GC->board, x, y, 0, 1) = %d\n\n", is_area_closed(GC, x, y, 0, 1));
 
         //meeple
         char tmpm = ' ';
@@ -300,3 +476,5 @@ void creative_gameplay(game* GC){
         free_tile(T);
     }
 }
+
+
