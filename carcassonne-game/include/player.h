@@ -5,12 +5,12 @@
 #define VSIZE 50                //size of *visited_tiles
 
 typedef struct player_t{
-    int id;
-    int meeple_color;
-    int meeple_number;
-    int score;
+	int id;
+	int meeple_color;
+	int meeple_number;
+	int score;
 
-    stack* hand;
+	stack* hand;
 }player;
 
 

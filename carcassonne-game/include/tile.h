@@ -11,31 +11,31 @@
 
 
 typedef struct side_t{
-    char type;
-    int meeple;
+	char type;
+	int meeple;
 }side;
 
 
 typedef struct tile_t{
-    int id;                 //if == UND (-1) -> vide
-    side *sides;            //5 cotes
-    int state;              //posee ou non
-    int played_by;          //id du joueur qui l'a posee
-    int x, y;               //coordonnees sur la grille, initialisees a -1           
-    int blason;         
+	int id;                 //if == UND (-1) -> vide
+	side *sides;            //5 cotes
+	int state;              //posee ou non
+	int played_by;          //id du joueur qui l'a posee
+	int x, y;               //coordonnees sur la grille, initialisees a -1           
+	int blason;         
 
 }tile;
 
 
 typedef struct stack_t{
-    tile* tab;
-    int nb_tiles;
+	tile* tab;
+	int nb_tiles;
 }stack;
 
 
 typedef struct grid_t{
-    tile** tab;
-    int nb_tiles;
+	tile** tab;
+	int nb_tiles;
 
 }grid;
 
