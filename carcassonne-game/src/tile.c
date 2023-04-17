@@ -280,7 +280,6 @@ void print_stack(stack *S){
 
 stack* get_tiles_from_file(char* filename){
 	int n = NB_OF_TILES;
-	// int n = 7;
 	FILE *fh = fopen(filename, "r");
 
 	if (fh == NULL){
@@ -298,29 +297,31 @@ stack* get_tiles_from_file(char* filename){
 	char *buf = NULL;
 
 
-	
+	int len = 0;
 	for (int j = 0 ; j < n ; j++){
 		S->tab[j].blason = 0;
 		for (int i = 0 ; i < 5 ; i++){
 			if (i==4){
-				getdelim(&buf, &size, '\n', fh);
+				len = getdelim(&buf, &size, '\n', fh);
+				buf[len-2] = '\0';
 			}
 			else{
-				getdelim(&buf, &size, ',', fh);
+				len = getdelim(&buf, &size, ',', fh);
+				buf[len-1] = '\0';
 			}
-			if (strcmp(buf, "pre,")==0 || strcmp(buf, "pre\n")==0) S->tab[j].sides[i].type = 'p';
-			else if (strcmp(buf, "route,")==0 || strcmp(buf, "route\n")==0) S->tab[j].sides[i].type = 'r';
-			else if (strcmp(buf, "ville,")==0 || strcmp(buf, "ville\n")==0) S->tab[j].sides[i].type = 'c';              //pour cité
-			else if (strcmp(buf, "village,")==0 || strcmp(buf, "village\n")==0) S->tab[j].sides[i].type = 'v';
-			else if (strcmp(buf, "abbaye,")==0 || strcmp(buf, "abbaye\n")==0) S->tab[j].sides[i].type = 'a';
-			else if (strcmp(buf, "blason,")==0 || strcmp(buf, "blason\n")==0) {
+
+			if (strcmp(buf, "pre")==0) S->tab[j].sides[i].type = 'p';
+			else if (strcmp(buf, "route")==0) S->tab[j].sides[i].type = 'r';
+			else if (strcmp(buf, "ville")==0) S->tab[j].sides[i].type = 'c';              //pour cité
+			else if (strcmp(buf, "village")==0) S->tab[j].sides[i].type = 'v';
+			else if (strcmp(buf, "abbaye")==0) S->tab[j].sides[i].type = 'a';
+			else if (strcmp(buf, "blason")==0) {
 				S->tab[j].sides[i].type = 'b';
 				S->tab[j].blason = 1;
-			}
-			
+			}			
 			else {
 				printf("erreur get_tiles_from_file : erreur de lecture\n");
-				printf("%s\n", buf);
+				printf("'%s'\n", buf);
 				exit(1);
 			}
 		}

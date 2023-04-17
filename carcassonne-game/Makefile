@@ -30,10 +30,6 @@ game.o: src/game.c include/game.h
 
 
 clean: 
-	del obj\*.o
-
-
-cleanux:
 	rm obj/*.o
 
 
