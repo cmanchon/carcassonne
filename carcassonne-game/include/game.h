@@ -4,6 +4,8 @@
 #ifndef GAME_H
 #define GAME_H
 
+#define CLEAR "\033[2J\033[H"
+
 typedef struct game_t{
     int nb_players;
     stack* deck;

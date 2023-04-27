@@ -21,7 +21,7 @@ void free_player(player *P){
 
 
 void print_player(player *P){
-	printf("Player %d\nmeeples : ", P->id);
+	printf("Player %s%d%s\nmeeples : ", BOLD, P->id, END_FORMAT);
 	printf("\033[");
 	switch (P->meeple_color)
 		{

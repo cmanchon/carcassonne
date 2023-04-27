@@ -127,26 +127,26 @@ void rotate_tile(tile* T, int degrees){
 	}
 }
 
-void copy_into(tile *old, tile* new){
+void copy_into(tile *Old, tile* New){
 	//copies old's attributes into new, admitting they've both already been allocated
-	new->id = old->id;
+	New->id = Old->id;
 
-	new->sides[0].meeple = old->sides[0].meeple;
-	new->sides[0].type = old->sides[0].type;
-	new->sides[1].meeple = old->sides[1].meeple;
-	new->sides[1].type = old->sides[1].type;
-	new->sides[2].meeple = old->sides[2].meeple;
-	new->sides[2].type = old->sides[2].type;
-	new->sides[3].meeple = old->sides[3].meeple;
-	new->sides[3].type = old->sides[3].type;
-	new->sides[4].meeple = old->sides[4].meeple;
-	new->sides[4].type = old->sides[4].type;
+	New->sides[0].meeple = Old->sides[0].meeple;
+	New->sides[0].type = Old->sides[0].type;
+	New->sides[1].meeple = Old->sides[1].meeple;
+	New->sides[1].type = Old->sides[1].type;
+	New->sides[2].meeple = Old->sides[2].meeple;
+	New->sides[2].type = Old->sides[2].type;
+	New->sides[3].meeple = Old->sides[3].meeple;
+	New->sides[3].type = Old->sides[3].type;
+	New->sides[4].meeple = Old->sides[4].meeple;
+	New->sides[4].type = Old->sides[4].type;
 
-	new->state = old->state;
-	new->played_by = old->played_by;
-	new->x = old->x;
-	new->y = old->y;
-	new->blason = old->blason;
+	New->state = Old->state;
+	New->played_by = Old->played_by;
+	New->x = Old->x;
+	New->y = Old->y;
+	New->blason = Old->blason;
 }
 
 
@@ -390,6 +390,8 @@ void free_grid(grid *G){
 int place_tile_on_grid(grid* G, tile *T, int x, int y, int player){
 	//returns 1 si could be placed, 0 otherwise
 
+	//à tester ?
+
 	if (x <= 0 || y <= 0 || x >= NB_OF_TILES*2-1 || y>= NB_OF_TILES*2-1) return 0;
 	else if (G->tab[x][y].id != UND){
 		//there's already a tile at this place
@@ -526,7 +528,7 @@ void print_side(side S, int show_meeples, int show_bg_colors){
 void print_grid(grid *G, int show_meeples, int show_bg_colors){
 	//on parcourt une première fois pour établir la fenêtre d'où sont les tuiles placées 
 	if (G->nb_tiles == 0){
-		printf("grid empty\n");
+		printf("Empty grid.\n");
 		return;
 	}
 
@@ -547,7 +549,7 @@ void print_grid(grid *G, int show_meeples, int show_bg_colors){
 	
 	//Affichage :
 	printf("       ");
-	printf("\033[1;37m");
+	printf(BOLD);
 	if (minX > 0) minX--;
 	if (minY > 0) minY--;
 	if (maxX < NB_OF_TILES*2-1) maxX++;
@@ -557,7 +559,7 @@ void print_grid(grid *G, int show_meeples, int show_bg_colors){
 		if (i < 100 && i >= 10) printf(" %d      ", i);
 		if (i < 10) printf(" %d       ", i);
 	}
-	printf("\033[0m");
+	printf(END_FORMAT);
 	printf("\n");
 	for (int j = minY ; j < maxY+1 ; j++){
 		printf("       ");
@@ -569,42 +571,34 @@ void print_grid(grid *G, int show_meeples, int show_bg_colors){
 			}
 			else{
 				printf("         ");
-				// printf("        ");
 			}
 		}
 		printf("\n");
 
-		printf("\033[1;37m");
+		printf(BOLD);
 		if (j >= 100) printf("%d ", j);
 		else if (j < 100 && j >= 10) printf(" %d ", j);
 		else if (j < 10) printf("  %d ", j);
-		printf("\033[0m");
+		printf(END_FORMAT);
 		for (int i = minX ; i < maxX+1 ; i++){
 			if (G->tab[i][j].id != UND){
-				// printf("%c %c %c   ", G->tab[i][j].sides[3].type, G->tab[i][j].sides[4].type,G->tab[i][j].sides[1].type);
 				print_side(G->tab[i][j].sides[3], show_meeples, show_bg_colors);
-				// printf(" ");
 				print_side(G->tab[i][j].sides[4], show_meeples, show_bg_colors);
-				// printf(" ");
 				print_side(G->tab[i][j].sides[1], show_meeples, show_bg_colors);
-				// printf(" ");
 			}
 			else{
 				printf("         ");
-				// printf("        ");
 			}
 		}
 		printf("\n");
 		printf("       ");
 		for (int i = minX ; i < maxX+1 ; i++){
 			if (G->tab[i][j].id != UND){
-				// printf("%c        ", G->tab[i][j].sides[2].type);
 				print_side(G->tab[i][j].sides[2], show_meeples, show_bg_colors);
 				printf("      ");
 			}
 			else{
 				printf("         ");
-				// printf("        ");
 			}
 		}
 		printf("\n");

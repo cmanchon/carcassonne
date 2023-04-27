@@ -16,6 +16,7 @@ game* init_game(char* filename, int nb_players){
 
 
 void free_game(game *G){
+	if (G == NULL) return;
 	for (int i = 0 ; i < G->nb_players ; i++){
 		free_player(G->players[i]);
 	}
@@ -258,23 +259,48 @@ game* give_points_to_max(game *G, int meeples[6], int points){
 //GAME
 
 game* start_game(char* filename){
-	//affichage plus sérieux à faire
-	printf("welcome to carcassonne\n\n");
-	int tmp=UND;
-	while (tmp <= 0 || tmp >6){
-		printf("how many players? \n");
+	printf("CARCASSONNE\n\n");
+	printf("INFO: You can leave the game at any time by pressing Q.\n\n\n");
+	usleep(500000);
+	int tmp=UND, l = 0;
+	printf("How many players are there? [1 ; 6]\n");
+	while (tmp <= 0 || tmp > 6){
 		scanf("%d", &tmp);
+		l++;
+		if (l >= 5){
+			printf("Too many tries. Exiting.\n\n");
+			return NULL;
+		}
 	}
 	game *G = init_game(filename, tmp);
 
-	//........gérer les joueurs
+	//gérer les joueurs
 	for (int i = 0 ; i < G->nb_players ; i++){
-		printf("\n\nPlayer %d: \n\n", i+1);
-		printf("choose your meeple color:\n");
+		printf("\n\nPlayer %s%d%s: \n\n", BOLD, i+1, END_FORMAT);
+		printf("Choose your meeple color:\n");
 		tmp = UND;
-		while (tmp < 0 || tmp >5){
-			printf("\033[33m 0 \033[31m 1 \033[32m 2 \033[34m 3 \033[30m 4 \033[37m 5 \033[0m\n");
+		l = 0;
+		while (tmp < 0 || tmp > 5){
+			printf("%s 0 %s 1 %s 2 %s 3 %s 4 %s 5 %s\n", YELLOW, RED, GREEN, BLUE, BLACK, WHITE, END_FORMAT);
 			scanf("%d", &tmp);
+
+			// on vérifie que cette couleur de meeple n'a pas déjà été choisie (à faire : afficher seulement les couleurs de meeples possibles)
+			if (tmp >= 0 && tmp <= 5){
+				for (int j = 0 ; j < G->nb_players ; j++){
+					if (G->players[j]->meeple_color == tmp){
+						tmp = UND;
+						break;
+					}
+				}
+			}
+
+
+			if (l >= 5){
+				printf("Too many tries. Exiting.\n\n");
+				free_game(G);
+				return NULL;
+			}
+			l++;
 		}
 		G->players[i]->meeple_color = tmp;
 	}
@@ -282,12 +308,15 @@ game* start_game(char* filename){
 	rotate_tile(&G->deck->tab[G->deck->nb_tiles-1], 270);
 	tile *T = pop(G->deck);
 	place_tile_on_grid(G->board, T, 72, 72, UND);
-	printf("\n\n\nstarting board:\n\n");
-	print_grid(G->board, 0, 1);
 	free_tile(T);
+
+	// printf("\n\n\nStarting board:\n\n");
+	// print_grid(G->board, 0, 1);
+	
 	shuffle(G->deck);
 	deal_tiles(G);
 
+	usleep(500000);
 	return G;
 }
 
@@ -296,26 +325,34 @@ game* start_game(char* filename){
 
 void gameplay(game *G){
 
+	if (G == NULL){
+		return;
+	}
+
+	int show_meeples = 0;
 	while (G->board->nb_tiles < (NB_OF_TILES*2-1) * (NB_OF_TILES*2-1)){
 		for (int i = 0 ; i < G->nb_players ; i++){
 			if (G->players[i]->hand->nb_tiles == 0) continue;
-			print_player(G->players[i]);
-			printf("\n\nBOARD:\n\n");
-			print_grid(G->board, 0, 1);
 			tile * T = pop(G->players[i]->hand);
-			printf("\n\ntile drawn : \n");
 			char tmp = ' ';
 			int j = 0;
-			//rotate or not
+
 			while((tmp != 'D' || tmp != 'G'|| tmp != 'Y'|| tmp != 'L'|| tmp != 'R') && j<10){
+				printf(CLEAR);
+				print_player(G->players[i]);
+				printf("\n");
+				print_grid(G->board, show_meeples, !show_meeples);
+				printf("\n\nTile drawn: \n");
 				print_tile(T, 0, 1);   
-				printf("Press:\n");
-				printf("\t\033[1;37mR\033[0m/\033[1;37mD\033[0m to rotate right\n");
-				printf("\t\033[1;37mL\033[0m/\033[1;37mG\033[0m to rotate left\n");
-				printf("\t\033[1;37mP\033[0m to draw again if tile cannot be placed\n");
-				printf("\t\033[1;37mY\033[0m to validate\n");
+				printf("\nPress:\n");
+				printf("\t%sR%s/%sD%s to rotate right\n", BOLD, END_FORMAT, BOLD, END_FORMAT);
+				printf("\t%sL%s/%sG%s to rotate left\n", BOLD, END_FORMAT, BOLD, END_FORMAT);
+				printf("\t%sM%s to switch board type.\n", BOLD, END_FORMAT);
+				printf("\t%sP%s to draw again if tile cannot be placed\n", BOLD, END_FORMAT);
+				printf("\t%sY%s to validate\n", BOLD, END_FORMAT);
 				scanf(" %c", &tmp);
 				printf("\n");
+
 				if (tmp == 'Y'){
 					break;
 				} 
@@ -327,11 +364,14 @@ void gameplay(game *G){
 					rotate_tile(T, 270);
 					tmp = ' ';
 				}
+				else if (tmp == 'M'){
+					show_meeples = !show_meeples;
+					tmp = ' ';
+				}
 				else if (tmp == 'P'){
 					place_at_base_of_stack(G->players[i]->hand, T);
 					T = pop(G->players[i]->hand);
 					tmp = ' ';
-
 				}
 				else if (tmp == 'Q'){
 					free_tile(T);
@@ -342,23 +382,45 @@ void gameplay(game *G){
 					tmp = ' ';
 				}
 				j++;
+				if (j >= 8){
+					printf("Too many tries. Quit or proceed to placement? (Q/P)\n");
+					scanf(" %c", &tmp);
+
+					if (tmp == 'P')
+						break;
+					else{
+						free_tile(T);
+						free_game(G);
+						exit(1);
+					}
+				}
 			}
 
 			//placement
 			int x = UND, y = UND;
 			int buf = 0;
-
+			int l = 0;
 			while (buf == 0 || x == UND || y == UND){
-				printf("\n\nBOARD:\n\n");
-				print_grid(G->board, 0, 1);
+				printf(CLEAR);
+				print_player(G->players[i]);
 				printf("\n");
+				print_grid(G->board, 0, 1);
+				printf("\n\nYour tile:\n");
 				print_tile(T, 0, 1);
-				printf("\n\nWrite where you want to place the tile:\n");
+				printf("\n\nWrite where you want to place the tile (x ; y):\n");
 				scanf("%d %d", &x, &y);
-				buf = place_tile_on_grid(G->board, T, x, y, i);                     //might be i+1 idk
+				buf = place_tile_on_grid(G->board, T, x, y, i);                    
+			
+				if (l >= 5){
+					printf("Too many tries. Exiting.\n\n");
+					free_tile(T);
+					free_game(G);
+					exit(1);
+				}
+				l++;
 			}
 
-			print_grid(G->board, 0, 1);
+			// debug
 			// int t[6] = {0};
 			// printf("\nis_area_closed(G->board, x, y, \033[1;37m0\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G, x, y, 0, 1, t));
 			// memset(t, 0, 6*sizeof(int));
@@ -371,6 +433,11 @@ void gameplay(game *G){
 			// printf("\nis_area_closed(G->board, x, y, \033[1;37m4\033[0m, 1) = \033[1;37m%d\033[0m\n\n", is_area_closed(G, x, y, 4, 1, t));
 
 			//meeple
+			printf(CLEAR);
+			print_player(G->players[i]);
+			printf("\n");
+			print_grid(G->board, 0, 1);
+			sleep(1);
 			char tmpm = ' ';
 			while (tmpm != 'Y' && tmpm != 'N' && tmpm != 'Q'){
 				printf("Place a meeple? (Y/N) ");
@@ -378,10 +445,15 @@ void gameplay(game *G){
 			}
 			if (tmpm == 'Y'){
 				int tmps = UND;
-				print_grid(G->board, 1, 0);
 				buf = 0;
 				while (buf == 0){
-					printf("\nWhich side?\n");
+					printf(CLEAR);
+					print_player(G->players[i]);
+					printf("\n");
+					print_grid(G->board, 1, 0);
+					printf("\nEnter a negative value to cancel.\n");
+					printf("\nYour tile is at (%d ; %d).\n\n", x, y);
+					printf("Which side?\n");
 					printf("\t  0\n");
 					printf("\t3 4 1\n");
 					printf("\t  2\n\n");
@@ -401,7 +473,11 @@ void gameplay(game *G){
 						}
 					}
 				}
+				printf(CLEAR);
+				print_player(G->players[i]);
+				printf("\n");
 				print_grid(G->board, 1, 0);
+				sleep(2);
 			}
 			else if (tmpm == 'Q'){
 				free_tile(T);
@@ -423,6 +499,8 @@ void gameplay(game *G){
 
 
 //CREATIVE MODE
+//utilisé principalement pour le debug, on utilise donc l'ancien affichage.
+
 
 game* start_creative_game(){
 	game* G = (game*)malloc(sizeof(game));

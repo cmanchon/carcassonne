@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #ifndef TUILE_H
 #define TUILE_H
@@ -9,6 +10,17 @@
 #define UND -1              //pour toutes les valeurs non definies, notamment à l'initialisation
 #define NB_OF_TILES 72
 
+
+#define BOLD "\033[1;37m"
+
+#define BLACK "\033[30m"
+#define RED "\033[31m"
+#define GREEN "\033[32m"
+#define YELLOW "\033[33m"
+#define BLUE "\033[34m"
+#define WHITE "\033[37m"
+
+#define END_FORMAT "\033[0m"
 
 typedef struct side_t{
 	char type;
@@ -54,7 +66,7 @@ stack* init_stack();
 void free_stack(stack *S);
 
 tile* pop(stack *S);
-void copy_into(tile* old, tile* new);
+void copy_into(tile* Old, tile* New);
 tile* erase(stack *S, int ind);
 void push(stack *S, tile *T);
 void print_stack(stack *S);
