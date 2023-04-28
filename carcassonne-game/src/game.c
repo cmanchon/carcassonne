@@ -284,7 +284,7 @@ game* start_game(char* filename){
 			printf("%s 0 %s 1 %s 2 %s 3 %s 4 %s 5 %s\n", YELLOW, RED, GREEN, BLUE, BLACK, WHITE, END_FORMAT);
 			scanf("%d", &tmp);
 
-			// on vérifie que cette couleur de meeple n'a pas déjà été choisie (à faire : afficher seulement les couleurs de meeples possibles)
+			// on vérifie que cette couleur de meeple n'a pas déjà été choisie
 			if (tmp >= 0 && tmp <= 5){
 				for (int j = 0 ; j < G->nb_players ; j++){
 					if (G->players[j]->meeple_color == tmp){
@@ -309,9 +309,6 @@ game* start_game(char* filename){
 	tile *T = pop(G->deck);
 	place_tile_on_grid(G->board, T, 72, 72, UND);
 	free_tile(T);
-
-	// printf("\n\n\nStarting board:\n\n");
-	// print_grid(G->board, 0, 1);
 	
 	shuffle(G->deck);
 	deal_tiles(G);
@@ -460,16 +457,11 @@ void gameplay(game *G){
 					scanf("%d", &tmps);
 					if (tmps < 0) break;        //if meeple cannot be placed: enter negative value
 					if (!is_meeple_on_area(G->board, x, y, tmps)){
-						buf = place_meeple_on_tile(&G->board->tab[x][y], tmps, G->players[i]);          //might be i+1 idk
+						buf = place_meeple_on_tile(&G->board->tab[x][y], tmps, G->players[i]);
 						int t[6] = {0};
 						int nb_points = is_area_closed(G, x, y, tmps, 1, t);
-						printf("%d points\n", nb_points);
 						if (nb_points > 0){
 							G = give_points_to_max(G, t, nb_points);
-							for (int k = 0 ; k < G->nb_players ; k++){
-								print_player(G->players[k]);
-							}
-
 						}
 					}
 				}
@@ -567,7 +559,7 @@ void creative_gameplay(game* GC){
 			print_tile(T, 0, 1);
 			printf("\n\nWrite where you want to place the tile:\n");
 			scanf("%d %d", &x, &y);
-			buf = place_tile_on_grid(GC->board, T, x, y, 1);                     //might be i+1 idk
+			buf = place_tile_on_grid(GC->board, T, x, y, 1);
 		}
 
 		int t[6] = {0};
@@ -601,7 +593,7 @@ void creative_gameplay(game* GC){
 
 				// if (!is_meeple_on_area(GC->board, x, y, tmps)){
 					printf("is meeple on area = %d\n", is_meeple_on_area(GC->board, x, y, tmps));
-					buf = place_meeple_on_tile(&GC->board->tab[x][y], tmps, GC->players[0]);          //might be i+1 idk
+					buf = place_meeple_on_tile(&GC->board->tab[x][y], tmps, GC->players[0]);
 				// }
 			}
 			print_grid(GC->board, 1, 0);
