@@ -79,7 +79,7 @@ int place_meeple_on_tile(tile* T, int side, player* P){
 
 
 
-int is_meeple_on_area(grid* G, int x, int y, int s){
+int is_meeple_on_area(grid* G, int x, int y, int s, int start){
 	//checks if there's a meeple on the area of the side s of the tile at (x, y)
 	//fonction récursive
 
@@ -87,6 +87,7 @@ int is_meeple_on_area(grid* G, int x, int y, int s){
 	char type = G->tab[x][y].sides[s].type;
 
 	// conditions d'arrêt
+	if (G->tab[x][y].sides[4].type == 'a' && G->tab[x][y].sides[4].meeple == UND) return 0;
 	int new_x = x, new_y = y;
 	if (s == 0) new_y--;
 	if (s == 1) new_x++;
@@ -94,6 +95,8 @@ int is_meeple_on_area(grid* G, int x, int y, int s){
 	if (s == 3) new_x--;
 	if (s!= 4 && G->tab[new_x][new_y].sides[adjacent_side(s)].meeple != UND) return 1;
 
+
+	// on check la tuile actuelle
 	if (G->tab[x][y].sides[s].meeple != UND) return 1;
 	if (G->tab[x][y].sides[4].type == type){
 		if (G->tab[x][y].sides[4].meeple != UND) return 1;
@@ -106,21 +109,45 @@ int is_meeple_on_area(grid* G, int x, int y, int s){
 		}
 	}
 	
-				  
-	for (int i = 0 ; i < 4 ; i++){
-		if (G->tab[x][y].sides[i].type == type && G->tab[x][y].sides[4].type == type){
-			if (G->tab[x][y].sides[i].meeple != UND) return 1;
-			int adj_side = adjacent_side(i);
-			int new_x = x, new_y = y;
-			if (i == 0) new_y--;
-			if (i == 1) new_x++;
-			if (i == 2) new_y++;
-			if (i == 3) new_x--;
-			if (G->tab[new_x][new_y].id != UND){
-				return is_meeple_on_area(G, new_x, new_y, adj_side);
+	if (s == 4){
+		// on parcourt de tous les côtes qui correspondent
+		// note : ce sera toujours la première récursion car on appelle ensuite que des côtés inférieurs à 4
+		for (int i = 0 ; i < 4 ; i++){
+			if (G->tab[x][y].sides[i].type == type){
+				if (G->tab[x][y].sides[i].meeple != UND) return 1;
+				int adj_side = adjacent_side(i);
+				int new_x = x, new_y = y;
+				if (i == 0) new_y--;
+				if (i == 1) new_x++;
+				if (i == 2) new_y++;
+				if (i == 3) new_x--;
+				if (G->tab[new_x][new_y].id != UND){
+					return is_meeple_on_area(G, new_x, new_y, adj_side, 0);
+				}
 			}
-		}
 
+		}
+	}
+				  
+	else{
+		for (int i = 0 ; i < 4 ; i++){
+			if (G->tab[x][y].sides[i].type == type && G->tab[x][y].sides[4].type == type){
+				if (i == s && start == 0) 
+					continue;
+				if (G->tab[x][y].sides[i].meeple != UND) return 1;
+				int adj_side = adjacent_side(i);
+				int new_x = x, new_y = y;
+				if (i == 0) new_y--;
+				if (i == 1) new_x++;
+				if (i == 2) new_y++;
+				if (i == 3) new_x--;
+				if (G->tab[new_x][new_y].id != UND){
+					return is_meeple_on_area(G, new_x, new_y, adj_side, 0);
+				}
+			}
+
+		}
+		
 	}
 	
 	return 0;

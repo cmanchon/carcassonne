@@ -1,11 +1,12 @@
 #include "include/game.h"
-// #include "include/tile.h"
 
 
-int main(void){
+int main(int argc, char **argv){
 	
+	if (argc == 2 && !strcmp(argv[1], "clear"))
+		printf(CLEAR);
+
 	game *G = start_game("data/tuiles_base_simplifiees.csv");
-	// print_players_hand(G->players[0]);
 	gameplay(G);
 	free_game(G);
 

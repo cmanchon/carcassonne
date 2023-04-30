@@ -2,8 +2,5 @@
     "files.associations": {
         "*.rmd": "markdown",
         "game.C": "cpp"
-    },
-    // "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools",
-    "C_Cpp.errorSquiggles": "enabled",
-
+    }
 }

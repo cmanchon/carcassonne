@@ -79,6 +79,7 @@ void shuffle(stack* S);
 //GRID
 grid* init_grid();
 void free_grid(grid* G);
+int is_tile_placeable(grid* G, tile *T, int x, int y);
 int place_tile_on_grid(grid* G, tile *T, int x, int y, int player);
 void print_side(side S, int show_meeples, int show_bg_colors);
 void print_grid(grid *G, int show_meeples, int show_bg_colors);

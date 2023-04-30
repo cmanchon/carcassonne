@@ -259,10 +259,10 @@ game* give_points_to_max(game *G, int meeples[6], int points){
 //GAME
 
 game* start_game(char* filename){
-	printf("CARCASSONNE\n\n");
-	printf("INFO: You can leave the game at any time by pressing Q.\n\n\n");
+	printf("########## CARCASSONNE ##########\n\n");
+	printf("INFO: You can leave the game at any time by pressing %sQ%s.\n\n\n", BOLD, END_FORMAT);
 	usleep(500000);
-	int tmp=UND, l = 0;
+	int tmp=UND, l = 0, i;				// on utilise la variable l dans les boucles while pour éviter qu'elles bouclent à l'infini
 	printf("How many players are there? [1 ; 6]\n");
 	while (tmp <= 0 || tmp > 6){
 		scanf("%d", &tmp);
@@ -272,11 +272,50 @@ game* start_game(char* filename){
 			return NULL;
 		}
 	}
-	game *G = init_game(filename, tmp);
 
-	//gérer les joueurs
-	for (int i = 0 ; i < G->nb_players ; i++){
-		printf("\n\nPlayer %s%d%s: \n\n", BOLD, i+1, END_FORMAT);
+	// si possible : on propose d'ajouter une ou plusieurs IA
+	int nb_ai = 0;
+	l = 0;
+	if (tmp < 6){
+		char choice;
+		printf("\nDo you want to add AIs?\nNote: you can't add more than %d.\n", 6-tmp);
+		
+		nb_ai = UND;
+		while (nb_ai < 0 || nb_ai > 6-tmp){
+			scanf(" %c", &choice);
+
+			if (choice == 'Y'){
+				printf("How many AIs do you want to add? [0 ; %d]\n", 6-tmp);
+				while (nb_ai < 0 || nb_ai > 6-tmp){
+					scanf("%d", &nb_ai);
+
+					if (l >=5){
+						printf("\nToo many tries. Keeping the number of AIs to 0.\n\n");
+						nb_ai = 0;
+						break;
+					}
+					l++;
+				}
+			}
+			else if (atoi(&choice) > 0)
+				nb_ai = atoi(&choice);
+			else 
+				nb_ai = 0;
+		}
+		
+	}
+
+
+	game *G = init_game(filename, tmp+nb_ai);
+
+	// si il y a des IA, on modifie leurs id pour les reconnaitre par la suite -> on prend des ID supérieurs au nombre de joueurs possibles
+	for (i = G->nb_players-nb_ai ; i < G->nb_players ; i++){
+		G->players[i]->id = ID_AI + i - G->nb_players+nb_ai;
+	}
+
+	// les joueurs choisissent leur meeple
+	for (i = 0 ; i < G->nb_players-nb_ai ; i++){
+		printf("\n\nPlayer %s%d%s: \n\n", BOLD, G->players[i]->id, END_FORMAT);
 		printf("Choose your meeple color:\n");
 		tmp = UND;
 		l = 0;
@@ -305,6 +344,11 @@ game* start_game(char* filename){
 		G->players[i]->meeple_color = tmp;
 	}
 
+
+	if (nb_ai > 0) 
+		AI_choose_meeple(G, nb_ai);
+
+
 	rotate_tile(&G->deck->tab[G->deck->nb_tiles-1], 270);
 	tile *T = pop(G->deck);
 	place_tile_on_grid(G->board, T, 72, 72, UND);
@@ -314,6 +358,17 @@ game* start_game(char* filename){
 	deal_tiles(G);
 
 	usleep(500000);
+
+	printf(CLEAR);
+	printf("%s%d%s players: \n\n",BOLD, G->nb_players, END_FORMAT);
+
+	for (i = 0 ; i < G->nb_players ; i++){
+		usleep(500000);
+		print_player(G->players[i]);
+		printf("\n");
+	}
+	sleep(3);
+
 	return G;
 }
 
@@ -329,7 +384,20 @@ void gameplay(game *G){
 	int show_meeples = 0;
 	while (G->board->nb_tiles < (NB_OF_TILES*2-1) * (NB_OF_TILES*2-1)){
 		for (int i = 0 ; i < G->nb_players ; i++){
-			if (G->players[i]->hand->nb_tiles == 0) continue;
+			if (G->players[i]->hand->nb_tiles == 0){
+				printf(CLEAR);
+				print_player(G->players[i]);
+				printf("\n");
+				print_grid(G->board, show_meeples, !show_meeples);
+				printf("\n\nYou've placed all your tiles. Skiping to next player.\n");
+				sleep(3);
+
+				continue;
+			} 
+			if (G->players[i]->id > 6){			//AI
+				AI_place_tile(G, i);
+				continue;
+			}
 			tile * T = pop(G->players[i]->hand);
 			char tmp = ' ';
 			int j = 0;
@@ -435,10 +503,24 @@ void gameplay(game *G){
 			printf("\n");
 			print_grid(G->board, 0, 1);
 			sleep(1);
+
 			char tmpm = ' ';
+			show_meeples = 0;
+			printf("You can switch the bord type by pressing %sM%s.\n\n", BOLD, END_FORMAT);
 			while (tmpm != 'Y' && tmpm != 'N' && tmpm != 'Q'){
 				printf("Place a meeple? (Y/N) ");
 				scanf(" %c", &tmpm);
+
+				if (tmpm == 'M'){
+					show_meeples = !show_meeples;
+
+					printf(CLEAR);
+					print_player(G->players[i]);
+					printf("\n");
+					print_grid(G->board, show_meeples, !show_meeples);
+					sleep(1);
+
+				}
 			}
 			if (tmpm == 'Y'){
 				int tmps = UND;
@@ -456,7 +538,7 @@ void gameplay(game *G){
 					printf("\t  2\n\n");
 					scanf("%d", &tmps);
 					if (tmps < 0) break;        //if meeple cannot be placed: enter negative value
-					if (!is_meeple_on_area(G->board, x, y, tmps)){
+					if (!is_meeple_on_area(G->board, x, y, tmps, 1)){
 						buf = place_meeple_on_tile(&G->board->tab[x][y], tmps, G->players[i]);
 						int t[6] = {0};
 						int nb_points = is_area_closed(G, x, y, tmps, 1, t);
@@ -592,7 +674,7 @@ void creative_gameplay(game* GC){
 				if (tmps < 0) break;        //if meeple cannot be placed: enter negative value
 
 				// if (!is_meeple_on_area(GC->board, x, y, tmps)){
-					printf("is meeple on area = %d\n", is_meeple_on_area(GC->board, x, y, tmps));
+					printf("is meeple on area = %d\n", is_meeple_on_area(GC->board, x, y, tmps, 1));
 					buf = place_meeple_on_tile(&GC->board->tab[x][y], tmps, GC->players[0]);
 				// }
 			}

@@ -297,25 +297,22 @@ stack* get_tiles_from_file(char* filename){
 	char *buf = NULL;
 
 
-	int len = 0;
 	for (int j = 0 ; j < n ; j++){
 		S->tab[j].blason = 0;
 		for (int i = 0 ; i < 5 ; i++){
 			if (i==4){
-				len = getdelim(&buf, &size, '\n', fh);
-				buf[len-2] = '\0';
+				getdelim(&buf, &size, '\n', fh);
 			}
 			else{
-				len = getdelim(&buf, &size, ',', fh);
-				buf[len-1] = '\0';
+				getdelim(&buf, &size, ',', fh);
 			}
-
-			if (strcmp(buf, "pre")==0) S->tab[j].sides[i].type = 'p';
-			else if (strcmp(buf, "route")==0) S->tab[j].sides[i].type = 'r';
-			else if (strcmp(buf, "ville")==0) S->tab[j].sides[i].type = 'c';              //pour cité
-			else if (strcmp(buf, "village")==0) S->tab[j].sides[i].type = 'v';
-			else if (strcmp(buf, "abbaye")==0) S->tab[j].sides[i].type = 'a';
-			else if (strcmp(buf, "blason")==0) {
+			
+			if (buf[0] == 'p') S->tab[j].sides[i].type = 'p';
+			else if (buf[0] == 'r') S->tab[j].sides[i].type = 'r';
+			else if (buf[0] == 'v' && buf[4] == 'e') S->tab[j].sides[i].type = 'c';              //pour cité
+			else if (buf[0] == 'v' && buf[4] == 'a') S->tab[j].sides[i].type = 'v';
+			else if (buf[0] == 'a') S->tab[j].sides[i].type = 'a';
+			else if (buf[0] == 'b') {
 				S->tab[j].sides[i].type = 'b';
 				S->tab[j].blason = 1;
 			}			
@@ -387,37 +384,51 @@ void free_grid(grid *G){
 }
 
 
-int place_tile_on_grid(grid* G, tile *T, int x, int y, int player){
-	//returns 1 si could be placed, 0 otherwise
+int is_tile_placeable(grid* G, tile *T, int x, int y){
+	//returns 1 si can be placed, 0 otherwise
 
-	//à tester ?
 
 	if (x <= 0 || y <= 0 || x >= NB_OF_TILES*2-1 || y>= NB_OF_TILES*2-1) return 0;
 	else if (G->tab[x][y].id != UND){
 		//there's already a tile at this place
 		return 0;
 	}
-	else if (G->tab[x-1][y].id == UND && G->tab[x][y-1].id == UND && G->tab[x+1][y].id == UND && G->tab[x][y+1].id == UND && G->nb_tiles > 0) return 0;
-	else if (G->tab[x-1][y].id != UND && x-1 >=0){
+	if (G->tab[x-1][y].id == UND && G->tab[x][y-1].id == UND && G->tab[x+1][y].id == UND && G->tab[x][y+1].id == UND && G->nb_tiles > 0) return 0;
+	if (G->tab[x-1][y].id != UND && x-1 >=0){
 		if ((G->tab[x-1][y].sides[1].type == 'c' && T->sides[3].type != 'c' && T->sides[3].type != 'b') || (G->tab[x-1][y].sides[1].type == 'b' && T->sides[3].type != 'b' && T->sides[3].type != 'c')) return 0;
+		if ((T->sides[3].type == 'c' && G->tab[x-1][y].sides[1].type != 'c' && G->tab[x-1][y].sides[1].type != 'b') || (T->sides[3].type == 'b' && G->tab[x-1][y].sides[1].type != 'c' && G->tab[x-1][y].sides[1].type != 'b')) return 0;
 		if (G->tab[x-1][y].sides[1].type != T->sides[3].type && G->tab[x-1][y].sides[1].type != 'b' && G->tab[x-1][y].sides[1].type != 'c' && T->sides[3].type != 'c' && T->sides[3].type != 'b') return 0;
 	} 
-	else if (G->tab[x][y-1].id != UND && y-1 >=0){
+	if (G->tab[x][y-1].id != UND && y-1 >=0){
 		if ((G->tab[x][y-1].sides[2].type == 'c' && T->sides[0].type != 'c' && T->sides[0].type != 'b') || (G->tab[x][y-1].sides[2].type == 'b' && T->sides[0].type != 'b' && T->sides[0].type != 'c')) return 0;
+		if ((T->sides[0].type == 'c' && G->tab[x][y-1].sides[2].type != 'c' && G->tab[x][y-1].sides[2].type != 'b') || (T->sides[0].type == 'b' && G->tab[x][y-1].sides[2].type != 'c' && G->tab[x][y-1].sides[2].type != 'b')) return 0;
 		if (G->tab[x][y-1].sides[2].type != T->sides[0].type && G->tab[x][y-1].sides[2].type != 'c' && G->tab[x][y-1].sides[2].type != 'b' && T->sides[0].type != 'b' && T->sides[0].type != 'c') return 0;
 	}
-	else if (G->tab[x+1][y].id != UND && x+1 <=NB_OF_TILES*2-1){
+	if (G->tab[x+1][y].id != UND && x+1 <=NB_OF_TILES*2-1){
 		if ((G->tab[x+1][y].sides[3].type == 'c' && T->sides[1].type != 'c' && T->sides[1].type != 'b') || (G->tab[x+1][y].sides[3].type == 'b' && T->sides[1].type != 'b' && T->sides[1].type != 'c')) return 0;
+		if ((T->sides[1].type == 'c' && G->tab[x+1][y].sides[3].type != 'c' && G->tab[x+1][y].sides[3].type != 'b') || (T->sides[1].type == 'b' && G->tab[x+1][y].sides[3].type != 'c' && G->tab[x+1][y].sides[3].type != 'b')) return 0;
 		if (G->tab[x+1][y].sides[3].type != T->sides[1].type && G->tab[x+1][y].sides[3].type != 'c' && G->tab[x+1][y].sides[3].type != 'b' && T->sides[1].type != 'c' && T->sides[1].type != 'b') return 0;
 	} 
-	else if (G->tab[x][y+1].id != UND && y+1 <= NB_OF_TILES*2-1){
-		if ((G->tab[x][y+1].sides[0].type == 'c' && T->sides[2].type != 'c' && T->sides[2].type != 'b') || (G->tab[x][y-+1].sides[0].type == 'b' && T->sides[2].type != 'b' && T->sides[2].type != 'c')) return 0;
+	if (G->tab[x][y+1].id != UND && y+1 <= NB_OF_TILES*2-1){
+		if ((G->tab[x][y+1].sides[0].type == 'c' && T->sides[2].type != 'c' && T->sides[2].type != 'b') || (G->tab[x][y+1].sides[0].type == 'b' && T->sides[2].type != 'b' && T->sides[2].type != 'c')) return 0;
+		if ((T->sides[2].type == 'c' && G->tab[x][y+1].sides[0].type != 'c' && G->tab[x][y+1].sides[0].type != 'b') || (T->sides[2].type == 'b' && G->tab[x][y+1].sides[0].type != 'c' && G->tab[x][y+1].sides[0].type != 'b')) return 0;
 		if (G->tab[x][y+1].sides[0].type != T->sides[2].type && G->tab[x][y+1].sides[0].type != 'c' && G->tab[x][y+1].sides[0].type != 'b' && T->sides[2].type != 'b' && T->sides[2].type != 'c') return 0;
 
 	}
 
-	//tile can be placed
+
+	return 1;
+}
+
+
+
+int place_tile_on_grid(grid* G, tile *T, int x, int y, int player){
+
+	//assert tile can be placed
+	if (!is_tile_placeable(G, T, x, y)) return 0;
+
 	
+	//tile can be placed
 	G->tab[x][y].id = T->id;
 	G->tab[x][y].blason = T->blason;
 	G->tab[x][y].sides[0] = T->sides[0];
@@ -432,7 +443,6 @@ int place_tile_on_grid(grid* G, tile *T, int x, int y, int player){
 	G->tab[x][y].played_by = player;
 
 	G->nb_tiles++;
-	//free_tile(T);
 	
 
 	return 1;
@@ -523,7 +533,6 @@ void print_side(side S, int show_meeples, int show_bg_colors){
 // 
 // 
 
-//couleurs à ajouter
 
 void print_grid(grid *G, int show_meeples, int show_bg_colors){
 	//on parcourt une première fois pour établir la fenêtre d'où sont les tuiles placées 
@@ -565,7 +574,6 @@ void print_grid(grid *G, int show_meeples, int show_bg_colors){
 		printf("       ");
 		for (int i = minX ; i < maxX+1 ; i++){
 			if (G->tab[i][j].id != UND){
-				// printf("%c       ", G->tab[i][j].sides[0].type);
 				print_side(G->tab[i][j].sides[0], show_meeples, show_bg_colors);
 				printf("      ");
 			}

@@ -1,0 +1,6 @@
+*.o
+main
+main-creative
+*.exe
+.vscode
+
