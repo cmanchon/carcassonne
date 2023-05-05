@@ -9,6 +9,6 @@ int main(int argc, char **argv){
 	game *G = start_game("data/tuiles_base_simplifiees.csv");
 	gameplay(G);
 	free_game(G);
-
+	
 	return 0;
 }

@@ -47,8 +47,8 @@ void AI_place_tile(game *G, int ind){
 
 	int rng, proba = 7;
 	srand((unsigned) time(NULL));
-	int buf;
-	for (int k = 0 ; k < 4 ; k++){
+	int buf, l = 0;
+	while (l < 49){
 
 		for (i = minX ; i < maxX ; i++){
 			for (j = minY ; j < maxY ; j++){
@@ -76,6 +76,17 @@ void AI_place_tile(game *G, int ind){
 
 
 		rotate_tile(T, 90);
+		l++;
+		if (l % 4 == 0){	
+			// si on a complètement retourné la tuile, on baisse la proba pour s'assurer de placer la tuile si possible
+			proba = 0;
+		}
+		if (l % 8 == 0){
+			// on considère que l'IA ne pouvait pas jouer sa tuile 
+			//		-> elle en pioche une autre
+			place_at_base_of_stack(G->players[ind]->hand, T);
+			T = pop(G->players[i]->hand);
+		}
 	}
 
 }
@@ -90,8 +101,8 @@ void AI_place_meeple(game *G, int ind, int x, int y){
 	} 
 
 	srand((unsigned) time(NULL));
-	int proba = 7, rng;
-	rng = rand() % 11; 			//l'IA a 2 chances sur 10 de poser un meeple
+	int proba = 6, rng;
+	rng = rand() % 11; 			//l'IA a 4 chances sur 10 de poser un meeple
 	if (rng <= proba && !meeple_placed) 
 		return;
 
@@ -99,16 +110,11 @@ void AI_place_meeple(game *G, int ind, int x, int y){
 	int tmps;
 	for (tmps = 0 ; tmps < 5 ; tmps++){
 		
-		rng = rand() % 11; 			//l'IA a 2 chances sur 10 de poser un meeple sur ce côté
+		rng = rand() % 11; 			//l'IA a 4 chances sur 10 de poser un meeple sur ce côté
 
-		if (rng > proba && G->board->tab[x][y].sides[tmps].type != 'p'){
+		if (rng >= proba && G->board->tab[x][y].sides[tmps].type != 'p' && !meeple_placed){
 			if (!is_meeple_on_area(G->board, x, y, tmps, 1)){
 				place_meeple_on_tile(&G->board->tab[x][y], tmps, G->players[ind]);
-				int t[6] = {0};
-				int nb_points = is_area_closed(G, x, y, tmps, 1, t);
-				if (nb_points > 0){
-					G = give_points_to_max(G, t, nb_points);
-				}
 				meeple_placed = 1;
 
 				break;
@@ -127,6 +133,19 @@ void AI_place_meeple(game *G, int ind, int x, int y){
 		sleep(2);
 	}
 
+	//évaluation
+	int t[6] = {0};
+	int nb_points;
+	for (int j = 0 ; j < 4 ; j++){
+		nb_points = is_area_closed(G, x, y, j, 1, t);
+		if (nb_points > 0){
+			give_points_to_max(G, t, nb_points);
+			remove_meeples_of_area(G, t, x, y, j);
+			sleep(10);
+
+		}
+		memset(t, 0, 6*sizeof(int));
+	}
 
 	return;
 }

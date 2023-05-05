@@ -18,7 +18,7 @@
 #define GREEN "\033[32m"
 #define YELLOW "\033[33m"
 #define BLUE "\033[34m"
-#define WHITE "\033[37m"
+#define MAGENTA "\033[35m"
 
 #define END_FORMAT "\033[0m"
 
@@ -31,7 +31,6 @@ typedef struct side_t{
 typedef struct tile_t{
 	int id;                 //if == UND (-1) -> vide
 	side *sides;            //5 cotes
-	int state;              //posee ou non
 	int played_by;          //id du joueur qui l'a posee
 	int x, y;               //coordonnees sur la grille, initialisees a -1           
 	int blason;         
@@ -59,6 +58,8 @@ void print_tile_info(tile* T);
 void print_tile(tile *T, int show_meeples, int show_bg_colors);
 void rotate_tile(tile* T, int degrees);
 int adjacent_side(int s);
+void adjacent_tile(int *x, int *y, int *s);
+int typecmp(char t1, char t2);
 
 
 //STACK

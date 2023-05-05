@@ -23,7 +23,6 @@ tile* init_tile(char side_A, char side_B, char side_C, char side_D, char side_E,
 	T->sides[4].type = side_E; 
 	T->sides[4].meeple = UND; 
 
-	T->state = 0;
 	T->played_by = UND;
 	T->x = UND;
 	T->y = UND;
@@ -63,7 +62,6 @@ void print_tile_info(tile *T){
 	printf("\n");
 	
 
-	printf("state : %d\n", T->state);
 	printf("played_by : %d\n", T->played_by);
 	printf("coords : (%d, %d)\n", T->x, T->y);
 	printf("blason : %d\n", T->blason);
@@ -142,7 +140,6 @@ void copy_into(tile *Old, tile* New){
 	New->sides[4].meeple = Old->sides[4].meeple;
 	New->sides[4].type = Old->sides[4].type;
 
-	New->state = Old->state;
 	New->played_by = Old->played_by;
 	New->x = Old->x;
 	New->y = Old->y;
@@ -158,6 +155,29 @@ int adjacent_side(int s){
 	else if (s == 3) return 1;
 	else return UND;
 } 
+
+void adjacent_tile(int *x, int *y, int *s){
+	if (*s == 4) return;
+
+	if (*s == 0) (*y)--;
+	if (*s == 1) (*x)++;
+	if (*s == 2) (*y)++;
+	if (*s == 3) (*x)--;
+	*s = adjacent_side(*s);
+}
+
+
+int typecmp(char t1, char t2){
+	// compares t1 and t2, returns 1 if the same et 0 if not
+	// (because we have to take into account blason and ville which are the same)
+	if (t1 == t2)
+		return 1;
+	if (t1 == 'c' && t2 == 'b')
+		return 1;
+	if (t1 == 'b' && t2 == 'c')
+		return 1;
+	return 0;
+}
 
 
 
@@ -324,7 +344,6 @@ stack* get_tiles_from_file(char* filename){
 		}
 		S->tab[j].id = j+1;
 		S->tab[j].played_by = UND;
-		S->tab[j].state = 0;
 		S->tab[j].x = UND;
 		S->tab[j].y = UND;
 	}
@@ -355,7 +374,6 @@ grid* init_grid(){
 			G->tab[i][j].blason = UND;
 			G->tab[i][j].id = UND;
 			G->tab[i][j].played_by = UND;
-			G->tab[i][j].state = 1;
 			G->tab[i][j].x = UND;
 			G->tab[i][j].y = UND;
 
@@ -394,27 +412,18 @@ int is_tile_placeable(grid* G, tile *T, int x, int y){
 		return 0;
 	}
 	if (G->tab[x-1][y].id == UND && G->tab[x][y-1].id == UND && G->tab[x+1][y].id == UND && G->tab[x][y+1].id == UND && G->nb_tiles > 0) return 0;
-	if (G->tab[x-1][y].id != UND && x-1 >=0){
-		if ((G->tab[x-1][y].sides[1].type == 'c' && T->sides[3].type != 'c' && T->sides[3].type != 'b') || (G->tab[x-1][y].sides[1].type == 'b' && T->sides[3].type != 'b' && T->sides[3].type != 'c')) return 0;
-		if ((T->sides[3].type == 'c' && G->tab[x-1][y].sides[1].type != 'c' && G->tab[x-1][y].sides[1].type != 'b') || (T->sides[3].type == 'b' && G->tab[x-1][y].sides[1].type != 'c' && G->tab[x-1][y].sides[1].type != 'b')) return 0;
-		if (G->tab[x-1][y].sides[1].type != T->sides[3].type && G->tab[x-1][y].sides[1].type != 'b' && G->tab[x-1][y].sides[1].type != 'c' && T->sides[3].type != 'c' && T->sides[3].type != 'b') return 0;
-	} 
 	if (G->tab[x][y-1].id != UND && y-1 >=0){
-		if ((G->tab[x][y-1].sides[2].type == 'c' && T->sides[0].type != 'c' && T->sides[0].type != 'b') || (G->tab[x][y-1].sides[2].type == 'b' && T->sides[0].type != 'b' && T->sides[0].type != 'c')) return 0;
-		if ((T->sides[0].type == 'c' && G->tab[x][y-1].sides[2].type != 'c' && G->tab[x][y-1].sides[2].type != 'b') || (T->sides[0].type == 'b' && G->tab[x][y-1].sides[2].type != 'c' && G->tab[x][y-1].sides[2].type != 'b')) return 0;
-		if (G->tab[x][y-1].sides[2].type != T->sides[0].type && G->tab[x][y-1].sides[2].type != 'c' && G->tab[x][y-1].sides[2].type != 'b' && T->sides[0].type != 'b' && T->sides[0].type != 'c') return 0;
+		if (!typecmp(G->tab[x][y-1].sides[2].type, T->sides[0].type)) return 0;
 	}
 	if (G->tab[x+1][y].id != UND && x+1 <=NB_OF_TILES*2-1){
-		if ((G->tab[x+1][y].sides[3].type == 'c' && T->sides[1].type != 'c' && T->sides[1].type != 'b') || (G->tab[x+1][y].sides[3].type == 'b' && T->sides[1].type != 'b' && T->sides[1].type != 'c')) return 0;
-		if ((T->sides[1].type == 'c' && G->tab[x+1][y].sides[3].type != 'c' && G->tab[x+1][y].sides[3].type != 'b') || (T->sides[1].type == 'b' && G->tab[x+1][y].sides[3].type != 'c' && G->tab[x+1][y].sides[3].type != 'b')) return 0;
-		if (G->tab[x+1][y].sides[3].type != T->sides[1].type && G->tab[x+1][y].sides[3].type != 'c' && G->tab[x+1][y].sides[3].type != 'b' && T->sides[1].type != 'c' && T->sides[1].type != 'b') return 0;
+		if (!typecmp(G->tab[x+1][y].sides[3].type, T->sides[1].type)) return 0;
 	} 
 	if (G->tab[x][y+1].id != UND && y+1 <= NB_OF_TILES*2-1){
-		if ((G->tab[x][y+1].sides[0].type == 'c' && T->sides[2].type != 'c' && T->sides[2].type != 'b') || (G->tab[x][y+1].sides[0].type == 'b' && T->sides[2].type != 'b' && T->sides[2].type != 'c')) return 0;
-		if ((T->sides[2].type == 'c' && G->tab[x][y+1].sides[0].type != 'c' && G->tab[x][y+1].sides[0].type != 'b') || (T->sides[2].type == 'b' && G->tab[x][y+1].sides[0].type != 'c' && G->tab[x][y+1].sides[0].type != 'b')) return 0;
-		if (G->tab[x][y+1].sides[0].type != T->sides[2].type && G->tab[x][y+1].sides[0].type != 'c' && G->tab[x][y+1].sides[0].type != 'b' && T->sides[2].type != 'b' && T->sides[2].type != 'c') return 0;
-
+		if (!typecmp(G->tab[x][y+1].sides[0].type, T->sides[2].type)) return 0;
 	}
+	if (G->tab[x-1][y].id != UND && x-1 >=0){
+		if (!typecmp(G->tab[x-1][y].sides[1].type, T->sides[3].type)) return 0;
+	} 
 
 
 	return 1;
@@ -437,7 +446,6 @@ int place_tile_on_grid(grid* G, tile *T, int x, int y, int player){
 	G->tab[x][y].sides[3] = T->sides[3];
 	G->tab[x][y].sides[4] = T->sides[4];
 
-	G->tab[x][y].state = 1;
 	G->tab[x][y].x = x;
 	G->tab[x][y].y = y;
 	G->tab[x][y].played_by = player;
@@ -506,6 +514,10 @@ void print_side(side S, int show_meeples, int show_bg_colors){
 		
 		case 4:
 			printf("30m");          //black
+			break;
+		
+		case 5:
+			printf("35m");          //magenta
 			break;
 		
 		default:

@@ -6,6 +6,7 @@
 #define GAME_H
 
 #define CLEAR "\033[2J\033[H"
+#define SLEEPTIME 3
 
 typedef struct game_t{
     int nb_players;
@@ -21,10 +22,15 @@ void deal_tiles(game *G);
 int is_in(int *tab, int value);
 void append_visited_tiles(int value);
 void print_visited_tiles();
-int is_area_closed(game* G, int x, int y, int s, int start, int meeples[6]);
 
 int get_meeples_player(game *G, int meeple);
-game* give_points_to_max(game *G, int meeples[6], int points);
+void give_points_to_max(game *G, int meeples[6], int points);
+void remove_meeples_of_area(game *G, int meeples[6], int x, int y, int s);
+    
+int is_area_closed(game* G, int x, int y, int s, int start, int meeples[6]);
+int is_abbey_closed(game* G, int x, int y);
+
+void print_ranking(game *G);
 
 game* init_game(char* filename, int nb_players);
 
