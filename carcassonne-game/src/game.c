@@ -417,7 +417,9 @@ void remove_meeples_of_area(game *G, int meeples[6], int x, int y, int s){
 }
 
 
-void print_ranking(game *G){
+int print_ranking(game *G){
+	//returns the index of the winner 
+
 	int i;
 	int *players_ind = (int*)malloc(G->nb_players * sizeof(int));
 	for (i = 0 ; i < G->nb_players ; i++){
@@ -449,6 +451,8 @@ void print_ranking(game *G){
 	sleep(SLEEPTIME);
 
 	free(players_ind);
+
+	return players_ind[0];
 }
 
 
@@ -580,7 +584,7 @@ void gameplay(game *G){
 	}
 
 	int show_meeples = 0;
-	while (G->board->nb_tiles < (NB_OF_TILES*2-1) * (NB_OF_TILES*2-1)){
+	while (G->board->nb_tiles <= NB_OF_TILES){
 		for (int i = 0 ; i < G->nb_players ; i++){
 
 			if (G->players[i]->hand->nb_tiles == 0){
@@ -764,13 +768,23 @@ void gameplay(game *G){
 
 			free_tile(T);
 		}
+
 	}
 
 	// fin de partie
-	// il faut parcourir la grille une fois de plus pour récupérer les points de chaque zone où il y a un ou des meeples, pour ensuite donner les points aux joueurs
 
 	printf(CLEAR);
-	print_ranking(G);
+	printf("All the tiles were played: end of game!\n\n");
+	usleep(500000);
+	printf("Last evaluation...");
+	// il faut parcourir la grille une fois de plus pour récupérer les points de chaque zone où il y a un ou des meeples, pour ensuite donner les points aux joueurs
+	sleep(SLEEPTIME/(2.0/3.0));
+
+	printf(CLEAR);
+	int winner = print_ranking(G);
+
+	sleep(SLEEPTIME/3.0);
+	printf("\n\n\nCongrats to Player %s%d%s who won with %d points!\n\n", BOLD, G->players[winner]->id, END_FORMAT, G->players[winner]->score);
 
 
 	free_game(G);
@@ -778,124 +792,5 @@ void gameplay(game *G){
 }
 
 
-
-
-//CREATIVE MODE
-//utilisé principalement pour le debug, on utilise donc l'ancien affichage.
-
-
-game* start_creative_game(){
-	game* G = (game*)malloc(sizeof(game));
-	G->nb_players = 1;
-	G->players = (player**)malloc(G->nb_players * sizeof(player*));
-	G->players[0] = init_player(1, 0);
-	G->board = init_grid();
-	G->deck = init_stack();
-
-
-
-	return G;
-}
-void free_creative_game(game *GC){
-	free_player(GC->players[0]);
-	free(GC->players);
-	free_grid(GC->board);
-	free_stack(GC->deck);
-	free(GC);
-}
-
-void creative_gameplay(game* GC){
-	char tmp = ' ';
-	int id_compteur = 0;
-	while (tmp != 'Q'){
-		printf("\n\nBOARD:\n\n");
-		print_grid(GC->board, 0, 1);
-		printf("\nTile disposition:\n");
-		printf("\t  0\n");
-		printf("\t3 4 1\n");
-		printf("\t  2\n\n");
-		tile * T = init_tile(' ', ' ', ' ', ' ', ' ', id_compteur);
-		id_compteur++;
-		int buf = 0;
-		while (buf == 0){
-			for (int i = 0 ; i < 5 ; i++){
-				printf("\nside %d : ", i);
-				scanf(" %c", &tmp);
-				if (tmp == 'Q'){
-					free_tile(T);
-					free_creative_game(GC);
-					exit(1);
-				}
-				T->sides[i].type = tmp;
-			}
-			print_tile(T, 0, 1);
-			printf("Place this tile ? (Y/N)\n");
-			scanf(" %c", &tmp);
-			if (tmp == 'Y') buf = 1;
-			else if (tmp == 'Q'){
-				free_tile(T);
-				free_creative_game(GC);
-				exit(1);
-			}
-		}
-
-		//placement
-		int x = UND, y = UND;
-
-		while (buf == 0 || x == UND || y == UND){
-			printf("\n\nBOARD:\n\n");
-			print_grid(GC->board, 0, 1);
-			printf("\n");
-			print_tile(T, 0, 1);
-			printf("\n\nWrite where you want to place the tile:\n");
-			scanf("%d %d", &x, &y);
-			buf = place_tile_on_grid(GC->board, T, x, y, 1);
-		}
-
-		int t[6] = {0};
-		printf("\nis_area_closed(GC->board, x, y, 0, 1) = %d\n\n", is_area_closed(GC, x, y, 0, 1, t));
-
-		//meeple
-		char tmpm = ' ';
-		while (tmpm != 'Y' && tmpm != 'N' && tmpm != 'Q'){
-			printf("Place a meeple? (Y/N) ");
-			scanf(" %c", &tmpm);
-		}
-		int tmpa;
-		if (tmpm == 'Y'){
-			int tmps = UND;
-			print_grid(GC->board, 1, 0);
-			buf = 0;
-			while (buf == 0){
-				printf("choose your meeple color:\n");
-				tmpa = UND;
-				while (tmpa < 0 || tmpa >5){
-					printf("\033[33m 0 \033[31m 1 \033[32m 2 \033[34m 3 \033[30m 4 \033[37m 5 \033[0m\n");
-					scanf("%d", &tmpa);
-				}
-				GC->players[0]->meeple_color = tmpa;
-				printf("\nWhich side?\n");
-				printf("\t  0\n");
-				printf("\t3 4 1\n");
-				printf("\t  2\n\n");
-				scanf("%d", &tmps);
-				if (tmps < 0) break;        //if meeple cannot be placed: enter negative value
-
-				// if (!is_meeple_on_area(GC->board, x, y, tmps)){
-					printf("is meeple on area = %d\n", is_meeple_on_area(GC->board, x, y, tmps, 1));
-					buf = place_meeple_on_tile(&GC->board->tab[x][y], tmps, GC->players[0]);
-				// }
-			}
-			print_grid(GC->board, 1, 0);
-		}
-		else if (tmpm == 'Q'){
-			free_tile(T);
-			free_creative_game(GC);
-			exit(1);
-		}
-
-		free_tile(T);
-	}
-}
 
 

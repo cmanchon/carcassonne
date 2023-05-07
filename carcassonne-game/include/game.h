@@ -30,7 +30,7 @@ void remove_meeples_of_area(game *G, int meeples[6], int x, int y, int s);
 int is_area_closed(game* G, int x, int y, int s, int start, int meeples[6]);
 int is_abbey_closed(game* G, int x, int y);
 
-void print_ranking(game *G);
+int print_ranking(game *G);
 
 game* init_game(char* filename, int nb_players);
 
