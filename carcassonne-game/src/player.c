@@ -41,7 +41,7 @@ void print_player(player *P){
 			break;
 		
 		case 4:
-			printf(BLACK);
+			printf(CYAN);
 			break;
 		
 		case 5:

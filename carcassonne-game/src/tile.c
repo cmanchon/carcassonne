@@ -513,7 +513,7 @@ void print_side(side S, int show_meeples, int show_bg_colors){
 			break;
 		
 		case 4:
-			printf("30m");          //black
+			printf("36m");          //cyan
 			break;
 		
 		case 5:

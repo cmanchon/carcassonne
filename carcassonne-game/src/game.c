@@ -518,7 +518,7 @@ game* start_game(char* filename){
 		tmp = UND;
 		l = 0;
 		while (tmp < 0 || tmp > 5){
-			printf("%s 0 %s 1 %s 2 %s 3 %s 4 %s 5 %s\n", YELLOW, RED, GREEN, BLUE, BLACK, MAGENTA, END_FORMAT);
+			printf("%s 0 %s 1 %s 2 %s 3 %s 4 %s 5 %s\n", YELLOW, RED, GREEN, BLUE, CYAN, MAGENTA, END_FORMAT);
 			scanf("%d", &tmp);
 
 			// on vérifie que cette couleur de meeple n'a pas déjà été choisie
