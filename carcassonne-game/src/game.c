@@ -584,7 +584,7 @@ void gameplay(game *G){
 	}
 
 	int show_meeples = 0;
-	while (G->board->nb_tiles <= NB_OF_TILES){
+	while (G->board->nb_tiles < NB_OF_TILES){
 		for (int i = 0 ; i < G->nb_players ; i++){
 
 			if (G->players[i]->hand->nb_tiles == 0){
@@ -704,51 +704,58 @@ void gameplay(game *G){
 
 			char tmpm = ' ';
 			show_meeples = 0;
-			printf("You can switch the bord type by pressing %sM%s.\n\n", BOLD, END_FORMAT);
-			while (tmpm != 'Y' && tmpm != 'N' && tmpm != 'Q'){
-				printf("Place a meeple? (Y/N) ");
-				scanf(" %c", &tmpm);
-
-				if (tmpm == 'M'){
-					show_meeples = !show_meeples;
-
-					printf(CLEAR);
-					print_player(G->players[i]);
-					printf("\n");
-					print_grid(G->board, show_meeples, !show_meeples);
-
-				}
+			if (G->players[i]->meeple_number <= 0){
+				printf("You have used all your meeples.\n\n");
+				sleep(SLEEPTIME);
 			}
-			if (tmpm == 'Y'){
-				int tmps = UND;
-				buf = 0;
-				while (buf == 0){
+			else{
+				printf("You can switch the bord type by pressing %sM%s.\n\n", BOLD, END_FORMAT);
+				while (tmpm != 'Y' && tmpm != 'N' && tmpm != 'Q'){
+					printf("Place a meeple? (Y/N) ");
+					scanf(" %c", &tmpm);
+
+					if (tmpm == 'M'){
+						show_meeples = !show_meeples;
+
+						printf(CLEAR);
+						print_player(G->players[i]);
+						printf("\n");
+						print_grid(G->board, show_meeples, !show_meeples);
+
+					}
+				}
+
+				if (tmpm == 'Y'){
+					int tmps = UND;
+					buf = 0;
+					while (buf == 0){
+						printf(CLEAR);
+						print_player(G->players[i]);
+						printf("\n");
+						print_grid(G->board, 1, 0);
+						printf("\nEnter a negative value to cancel.\n");
+						printf("\nYour tile is at (%d ; %d).\n\n", x, y);
+						printf("Which side?\n");
+						printf("\t  0\n");
+						printf("\t3 4 1\n");
+						printf("\t  2\n\n");
+						scanf("%d", &tmps);
+						if (tmps < 0) break;        //if meeple cannot be placed: enter negative value
+						if (!is_meeple_on_area(G->board, x, y, tmps, 1)){
+							buf = place_meeple_on_tile(&G->board->tab[x][y], tmps, G->players[i]);
+						}
+					}
 					printf(CLEAR);
 					print_player(G->players[i]);
 					printf("\n");
 					print_grid(G->board, 1, 0);
-					printf("\nEnter a negative value to cancel.\n");
-					printf("\nYour tile is at (%d ; %d).\n\n", x, y);
-					printf("Which side?\n");
-					printf("\t  0\n");
-					printf("\t3 4 1\n");
-					printf("\t  2\n\n");
-					scanf("%d", &tmps);
-					if (tmps < 0) break;        //if meeple cannot be placed: enter negative value
-					if (!is_meeple_on_area(G->board, x, y, tmps, 1)){
-						buf = place_meeple_on_tile(&G->board->tab[x][y], tmps, G->players[i]);
-					}
+					sleep(SLEEPTIME / (2.0/3.0));
 				}
-				printf(CLEAR);
-				print_player(G->players[i]);
-				printf("\n");
-				print_grid(G->board, 1, 0);
-				sleep(SLEEPTIME / (2.0/3.0));
-			}
-			else if (tmpm == 'Q'){
-				free_tile(T);
-				free_game(G);
-				exit(1);
+				else if (tmpm == 'Q'){
+					free_tile(T);
+					free_game(G);
+					exit(1);
+				}
 			}
 
 			//évaluation
@@ -784,7 +791,7 @@ void gameplay(game *G){
 	int winner = print_ranking(G);
 
 	sleep(SLEEPTIME/3.0);
-	printf("\n\n\nCongrats to Player %s%d%s who won with %d points!\n\n", BOLD, G->players[winner]->id, END_FORMAT, G->players[winner]->score);
+	printf("\n\n\nCongrats to Player %s%d%s who won with %d points!\n\n", BOLD, G->players[winner]->id, END_FORMAT, G->players[winner]->score); //segfault???
 
 
 	free_game(G);

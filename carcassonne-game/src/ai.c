@@ -93,9 +93,10 @@ void AI_place_tile(game *G, int ind){
 
 void AI_place_meeple(game *G, int ind, int x, int y){
 
+
 	int meeple_placed = 0;
 
-	if (G->board->tab[x][y].sides[4].type == 'a'){
+	if (G->board->tab[x][y].sides[4].type == 'a' && G->players[ind]->meeple_number > 0){
 		place_meeple_on_tile(&G->board->tab[x][y], 4, G->players[ind]);
 		meeple_placed = 1;
 	} 
@@ -103,26 +104,27 @@ void AI_place_meeple(game *G, int ind, int x, int y){
 	srand((unsigned) time(NULL));
 	int proba = 6, rng;
 	rng = rand() % 11; 			//l'IA a 4 chances sur 10 de poser un meeple
-	if (rng <= proba && !meeple_placed) 
-		return;
+	if (rng > proba && !meeple_placed && G->players[ind]->meeple_number > 0){
+		int tmps;
+		for (tmps = 0 ; tmps < 5 ; tmps++){
+			
+			rng = rand() % 11; 			//l'IA a 4 chances sur 10 de poser un meeple sur ce côté
 
+			if (rng >= proba && G->board->tab[x][y].sides[tmps].type != 'p' && !meeple_placed){
+				if (!is_meeple_on_area(G->board, x, y, tmps, 1)){
+					place_meeple_on_tile(&G->board->tab[x][y], tmps, G->players[ind]);
+					meeple_placed = 1;
 
-	int tmps;
-	for (tmps = 0 ; tmps < 5 ; tmps++){
-		
-		rng = rand() % 11; 			//l'IA a 4 chances sur 10 de poser un meeple sur ce côté
+					break;
+				}
 
-		if (rng >= proba && G->board->tab[x][y].sides[tmps].type != 'p' && !meeple_placed){
-			if (!is_meeple_on_area(G->board, x, y, tmps, 1)){
-				place_meeple_on_tile(&G->board->tab[x][y], tmps, G->players[ind]);
-				meeple_placed = 1;
-
-				break;
 			}
 
 		}
 
 	}
+
+
 
 	if (meeple_placed){
 		printf(CLEAR);
