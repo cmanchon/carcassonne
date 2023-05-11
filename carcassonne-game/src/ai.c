@@ -139,7 +139,7 @@ void AI_place_meeple(game *G, int ind, int x, int y){
 	int t[6] = {0};
 	int nb_points;
 	for (int j = 0 ; j < 4 ; j++){
-		nb_points = is_area_closed(G, x, y, j, 1, t);
+		nb_points = points_count(G, x, y, j, 1, t, 0);
 		if (nb_points > 0){
 			give_points_to_max(G, t, nb_points);
 			remove_meeples_of_area(G, t, x, y, j);

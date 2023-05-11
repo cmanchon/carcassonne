@@ -27,7 +27,7 @@ int get_meeples_player(game *G, int meeple);
 void give_points_to_max(game *G, int meeples[6], int points);
 void remove_meeples_of_area(game *G, int meeples[6], int x, int y, int s);
     
-int is_area_closed(game* G, int x, int y, int s, int start, int meeples[6]);
+int points_count(game* Game, int x, int y, int s, int start, int meeples[6], int final_evaluation);
 int is_abbey_closed(game* G, int x, int y);
 
 int print_ranking(game *G);

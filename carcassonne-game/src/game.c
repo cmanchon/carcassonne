@@ -70,8 +70,9 @@ void print_visited_tiles(){
 }
 
 
-int is_area_closed(game* Game, int x, int y, int s, int start, int meeples[6]){
+int points_count(game* Game, int x, int y, int s, int start, int meeples[6], int final_evaluation){
 	//checks if in area is closed, returns the number of points if yes and -1 otherwise.
+	//if final evaluation -> on compte les points même si la zone est ouverte
 	//meeples contient le nombre d'occurence de chaque meeple, meeple[i] étant le meeple de couleur i (par defaut = {0, 0, 0, 0, 0, 0})
 	//fonction recursive
 
@@ -86,11 +87,18 @@ int is_area_closed(game* Game, int x, int y, int s, int start, int meeples[6]){
 
 	if (Game->board->tab[x][y].sides[s].meeple != UND){
 			meeples[Game->board->tab[x][y].sides[s].meeple]++;
+			if (final_evaluation)
+				Game->board->tab[x][y].sides[s].meeple = UND;
 	}
 
 	char type = Game->board->tab[x][y].sides[s].type;
 	int nb_points = 0, tmp; 
-	if (type == 'b') nb_points+=2;
+	if (type == 'b'){
+		if (final_evaluation)
+			nb_points++;
+		else
+			nb_points+=2;
+	}
 	// conditions d'arrêt
 	//      abbaye
 	if (s == 4 && type == 'a' && !typecmp(Game->board->tab[x][y].sides[0].type,type) && !typecmp(Game->board->tab[x][y].sides[1].type, type) && !typecmp(Game->board->tab[x][y].sides[2].type, type) && !typecmp(Game->board->tab[x][y].sides[3].type, type)){      
@@ -112,26 +120,39 @@ int is_area_closed(game* Game, int x, int y, int s, int start, int meeples[6]){
 		}
 		if (Game->board->tab[x][y].sides[4].meeple != UND){
 			meeples[Game->board->tab[x][y].sides[4].meeple]++;
+			if (final_evaluation)
+				Game->board->tab[x][y].sides[4].meeple = UND;
 		}
-		if (nb_points == 9) return nb_points;   // retourner que si c'est elle est complétée
+		if (nb_points == 9 || final_evaluation) return nb_points;   // retourner que si elle est complétée
 		else return -1;
 	}
 	if (s != 4){
 		//on compte les points de cette tuile :
 		if (typecmp(Game->board->tab[x][y].sides[4].type, type)){
-		
+			if (Game->board->tab[x][y].sides[4].meeple != UND){
+				meeples[Game->board->tab[x][y].sides[4].meeple]++;
+				if (final_evaluation)
+					Game->board->tab[x][y].sides[4].meeple = UND;
+			}	
+
 			for (int i = 0 ; i < 4 ; i++){
 				if (typecmp(type, Game->board->tab[x][y].sides[i].type)){
+					if (Game->board->tab[x][y].sides[i].meeple != UND){
+						meeples[Game->board->tab[x][y].sides[i].meeple]++;
+						if (final_evaluation)
+							Game->board->tab[x][y].sides[i].meeple = UND;
+					}
+
 					int new_x = x, new_y = y, new_s = i;
 					adjacent_tile(&new_x, &new_y, &new_s);
-					if (new_x >= NB_OF_TILES*2-1 || new_x <= 0 || new_y >= NB_OF_TILES*2-1 || new_y <= 0) return -1;    //on sort de la grille
-					else if (Game->board->tab[new_x][new_y].id == UND) return -1;     //tuile adjacente vide 
+					if (new_x >= NB_OF_TILES*2-1 || new_x <= 0 || new_y >= NB_OF_TILES*2-1 || new_y <= 0) return -1;    //on sort de la grille -> zone ouverte
+					else if (Game->board->tab[new_x][new_y].id == UND) return -1;     //tuile adjacente vide -> zone ouverte
 					else if (i != s){      //tuile adjacente non vide et existante
 						if (!is_in(visited_tiles, Game->board->tab[new_x][new_y].id)){
 							append_visited_tiles(Game->board->tab[new_x][new_y].id);
-							tmp = is_area_closed(Game, new_x, new_y, new_s, 0, meeples);         //+1 pour current side
-							if (tmp != -1){
-								if (type == 'c' || type == 'b'){
+							tmp = points_count(Game, new_x, new_y, new_s, 0, meeples, final_evaluation);
+							if (tmp != -1 || final_evaluation){
+								if ((type == 'c' || type == 'b') && !final_evaluation){
 									nb_points+=tmp+2;
 								}
 								else{
@@ -152,18 +173,23 @@ int is_area_closed(game* Game, int x, int y, int s, int start, int meeples[6]){
 		else{
 			int new_x = x, new_y = y, new_s = s;
 			adjacent_tile(&new_x, &new_y, &new_s);
-			if (new_x >= NB_OF_TILES*2-1 || new_x <= 0 || new_y >= NB_OF_TILES*2-1 || new_y <= 0) return -1;    //on sort de la grille
-			else if (Game->board->tab[new_x][new_y].id == UND) return -1;     //tuile adjacente vide 
+			if (new_x >= NB_OF_TILES*2-1 || new_x <= 0 || new_y >= NB_OF_TILES*2-1 || new_y <= 0) return -1;    //on sort de la grille -> zone ouverte
+			else if (Game->board->tab[new_x][new_y].id == UND) return -1;     //tuile adjacente vide -> zone ouverte
 			else if (start == 0){
-				if (type == 'b' || type == 'c') return nb_points+2;
+				if (Game->board->tab[new_x][new_y].sides[new_s].meeple != UND){
+						meeples[Game->board->tab[new_x][new_y].sides[new_s].meeple]++;
+						if (final_evaluation)
+							Game->board->tab[new_x][new_y].sides[new_s].meeple = UND;
+				}
+				if ((type == 'b' || type == 'c') && !final_evaluation) return nb_points+2;
 				else return nb_points+1;
 			} 
 			else {      //tuile adjacente non vide et existante
 				if (!is_in(visited_tiles, Game->board->tab[new_x][new_y].id)){
 					append_visited_tiles(Game->board->tab[new_x][new_y].id);
-					tmp = is_area_closed(Game, new_x, new_y, new_s, 0, meeples);         //+1 pour current side
-					if (tmp != -1) 
-						if (type == 'c' || type == 'b'){
+					tmp = points_count(Game, new_x, new_y, new_s, 0, meeples, final_evaluation);
+					if (tmp != -1 || final_evaluation) 
+						if ((type == 'c' || type == 'b') && !final_evaluation){
 							nb_points+=tmp+2;
 						}
 						else{
@@ -183,9 +209,9 @@ int is_area_closed(game* Game, int x, int y, int s, int start, int meeples[6]){
 	else{	//s == 4
 		for (int i = 0 ; i < 4 ; i++){
 			if (typecmp(type, Game->board->tab[x][y].sides[i].type)){
-				tmp = is_area_closed(Game, x, y, i, 0 ,meeples);
-				if (tmp != -1) 
-					if (type == 'c' || type == 'b'){
+				tmp = points_count(Game, x, y, i, 0, meeples, final_evaluation);
+				if (tmp != -1 || final_evaluation) 
+					if ((type == 'c' || type == 'b') && !final_evaluation){
 						nb_points+=tmp+2;
 					}
 					else{
@@ -199,7 +225,7 @@ int is_area_closed(game* Game, int x, int y, int s, int start, int meeples[6]){
 	}
 
 	
-	if (nb_points == 0 || (nb_points == 2 && type=='b') || type == 'p') return -1;
+	if (nb_points == 0 || (nb_points == 2 && type=='b' && !final_evaluation) || (nb_points == 1 && type=='b' && final_evaluation) || type == 'p') return -1;
 	return nb_points;
 
 }
@@ -763,7 +789,7 @@ void gameplay(game *G){
 			int nb_points;
 			is_abbey_closed(G, x, y);
 			for (j = 0 ; j < 4 ; j++){
-				nb_points = is_area_closed(G, x, y, j, 1, t);
+				nb_points = points_count(G, x, y, j, 1, t, 0);
 				if (nb_points > 0){
 					give_points_to_max(G, t, nb_points);
 					remove_meeples_of_area(G, t, x, y, j);
@@ -785,6 +811,32 @@ void gameplay(game *G){
 	usleep(500000);
 	printf("Last evaluation...");
 	// il faut parcourir la grille une fois de plus pour récupérer les points de chaque zone où il y a un ou des meeples, pour ensuite donner les points aux joueurs
+	
+	int t[6] = {0};
+	int empty_t[6] = {0};			//sert seulement à la comparaison
+	int nb_points, tile_count = 0;
+	for (int i = 0 ; i < NB_OF_TILES*2-1 ; i++){
+		for (int j = 0 ; j < NB_OF_TILES*2-1 ; j++){
+			if (G->board->tab[i][j].id == UND)
+				continue;
+
+			for (int k = 0 ; k < 5 ; k++){
+				nb_points = points_count(G, i, j, k, 1, t, 1);
+				if (nb_points > 0 && memcmp(t, empty_t, 6*sizeof(int)) != 0){
+					give_points_to_max(G, t, nb_points);
+				}
+				memset(t, 0, 6*sizeof(int));
+			}
+
+			tile_count++;
+			if (tile_count >= NB_OF_TILES){
+				i = NB_OF_TILES*2-1;
+				j = NB_OF_TILES*2-1;
+			}
+				
+		}
+	}
+
 	sleep(SLEEPTIME/(2.0/3.0));
 
 	printf(CLEAR);
