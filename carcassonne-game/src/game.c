@@ -319,7 +319,7 @@ void give_points_to_max(game *G, int meeples[6], int points){
 	}
 
 	//give points to player_max
-	if (player_max[0] != UND){
+	if (player_max[0] != UND && G->board->nb_tiles < NB_OF_TILES){		//on n'affiche pas si c'est la fin de la partie
 		i = 0;
 		printf("\nAn area was completed, %d points were given to\n", points);
 		while (player_max[i] != UND){
@@ -476,9 +476,11 @@ int print_ranking(game *G){
 
 	sleep(SLEEPTIME);
 
+	int winner = players_ind[0];
 	free(players_ind);
 
-	return players_ind[0];
+
+	return winner;
 }
 
 
@@ -843,7 +845,7 @@ void gameplay(game *G){
 	int winner = print_ranking(G);
 
 	sleep(SLEEPTIME/3.0);
-	printf("\n\n\nCongrats to Player %s%d%s who won with %d points!\n\n", BOLD, G->players[winner]->id, END_FORMAT, G->players[winner]->score); //segfault???
+	printf("\n\n\nCongrats to Player %s%d%s who won with %d points!\n\n", BOLD, G->players[winner]->id, END_FORMAT, G->players[winner]->score);
 
 
 	free_game(G);
