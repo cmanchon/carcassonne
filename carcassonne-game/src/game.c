@@ -123,7 +123,7 @@ int points_count(game* Game, int x, int y, int s, int start, int meeples[6], int
 			if (final_evaluation)
 				Game->board->tab[x][y].sides[4].meeple = UND;
 		}
-		if (nb_points == 9 || final_evaluation) return nb_points;   // retourner que si elle est complétée
+		if (nb_points == 9 || final_evaluation) return nb_points;   
 		else return -1;
 	}
 	if (s != 4){
@@ -202,7 +202,6 @@ int points_count(game* Game, int x, int y, int s, int start, int meeples[6], int
 
 				}
 			}   
-			// } 
 
 		}
 	}
@@ -581,7 +580,7 @@ game* start_game(char* filename){
 
 	rotate_tile(&G->deck->tab[G->deck->nb_tiles-1], 270);
 	tile *T = pop(G->deck);
-	place_tile_on_grid(G->board, T, 72, 72, UND);
+	place_tile_on_grid(G->board, T, 72, 72);
 	free_tile(T);
 	
 	shuffle(G->deck);
@@ -611,7 +610,7 @@ void gameplay(game *G){
 		return;
 	}
 
-	int show_meeples = 0;
+	int show_meeples = 0, difficulty = 2;
 	while (G->board->nb_tiles < NB_OF_TILES){
 		for (int i = 0 ; i < G->nb_players ; i++){
 
@@ -626,7 +625,7 @@ void gameplay(game *G){
 				continue;
 			} 
 			if (G->players[i]->id > 6){			//AI
-				AI_place_tile(G, i);
+				AI_place_tile(G, i, difficulty);
 				continue;
 			}
 			tile * T = pop(G->players[i]->hand);
@@ -711,7 +710,7 @@ void gameplay(game *G){
 				print_tile(T, 0, 1);
 				printf("\n\nWrite where you want to place the tile (x ; y):\n");
 				scanf("%d %d", &x, &y);
-				buf = place_tile_on_grid(G->board, T, x, y, i);                    
+				buf = place_tile_on_grid(G->board, T, x, y);                    
 			
 				if (l >= 5){
 					printf("Too many tries. Exiting.\n\n");

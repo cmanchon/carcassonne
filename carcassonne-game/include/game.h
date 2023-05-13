@@ -10,10 +10,9 @@
 
 typedef struct game_t{
     int nb_players;
+    player** players;
     stack* deck;
     grid* board;
-    player** players;
-
 }game;
 
 

@@ -23,11 +23,8 @@ tile* init_tile(char side_A, char side_B, char side_C, char side_D, char side_E,
 	T->sides[4].type = side_E; 
 	T->sides[4].meeple = UND; 
 
-	T->played_by = UND;
 	T->x = UND;
 	T->y = UND;
-	if (side_A == 'b' || side_B == 'b' || side_C == 'b' || side_D == 'b' || side_E == 'b') T->blason = 1;
-	else T->blason = 0;
 
 	return T;
 }
@@ -62,9 +59,7 @@ void print_tile_info(tile *T){
 	printf("\n");
 	
 
-	printf("played_by : %d\n", T->played_by);
 	printf("coords : (%d, %d)\n", T->x, T->y);
-	printf("blason : %d\n", T->blason);
 }
 
 
@@ -140,10 +135,8 @@ void copy_into(tile *Old, tile* New){
 	New->sides[4].meeple = Old->sides[4].meeple;
 	New->sides[4].type = Old->sides[4].type;
 
-	New->played_by = Old->played_by;
 	New->x = Old->x;
 	New->y = Old->y;
-	New->blason = Old->blason;
 }
 
 
@@ -318,7 +311,6 @@ stack* get_tiles_from_file(char* filename){
 
 
 	for (int j = 0 ; j < n ; j++){
-		S->tab[j].blason = 0;
 		for (int i = 0 ; i < 5 ; i++){
 			if (i==4){
 				getdelim(&buf, &size, '\n', fh);
@@ -334,7 +326,6 @@ stack* get_tiles_from_file(char* filename){
 			else if (buf[0] == 'a') S->tab[j].sides[i].type = 'a';
 			else if (buf[0] == 'b') {
 				S->tab[j].sides[i].type = 'b';
-				S->tab[j].blason = 1;
 			}			
 			else {
 				printf("erreur get_tiles_from_file : erreur de lecture\n");
@@ -343,7 +334,6 @@ stack* get_tiles_from_file(char* filename){
 			}
 		}
 		S->tab[j].id = j+1;
-		S->tab[j].played_by = UND;
 		S->tab[j].x = UND;
 		S->tab[j].y = UND;
 	}
@@ -371,9 +361,7 @@ grid* init_grid(){
 
 	for (int i = 0 ; i < NB_OF_TILES*2-1 ; i++){
 		for (int j = 0 ; j < NB_OF_TILES*2-1 ; j++){
-			G->tab[i][j].blason = UND;
 			G->tab[i][j].id = UND;
-			G->tab[i][j].played_by = UND;
 			G->tab[i][j].x = UND;
 			G->tab[i][j].y = UND;
 
@@ -431,7 +419,7 @@ int is_tile_placeable(grid* G, tile *T, int x, int y){
 
 
 
-int place_tile_on_grid(grid* G, tile *T, int x, int y, int player){
+int place_tile_on_grid(grid* G, tile *T, int x, int y){
 
 	//assert tile can be placed
 	if (!is_tile_placeable(G, T, x, y)) return 0;
@@ -439,7 +427,6 @@ int place_tile_on_grid(grid* G, tile *T, int x, int y, int player){
 	
 	//tile can be placed
 	G->tab[x][y].id = T->id;
-	G->tab[x][y].blason = T->blason;
 	G->tab[x][y].sides[0] = T->sides[0];
 	G->tab[x][y].sides[1] = T->sides[1];
 	G->tab[x][y].sides[2] = T->sides[2];
@@ -448,13 +435,91 @@ int place_tile_on_grid(grid* G, tile *T, int x, int y, int player){
 
 	G->tab[x][y].x = x;
 	G->tab[x][y].y = y;
-	G->tab[x][y].played_by = player;
 
 	G->nb_tiles++;
 	
 
 	return 1;
 }
+
+
+int is_meeple_on_area(grid* G, int x, int y, int s, int start){
+	//checks if there's a meeple on the area of the side s of the tile at (x, y)
+	//fonction récursive
+
+	char type = G->tab[x][y].sides[s].type;
+
+	// conditions d'arrêt
+	if (G->tab[x][y].sides[4].type == 'a' && G->tab[x][y].sides[4].meeple == UND && s == 4) return 0;
+	int new_x = x, new_y = y, adj_side = s;
+	adjacent_tile(&new_x, &new_y, &adj_side);
+
+	if (s!= 4 && G->tab[new_x][new_y].sides[adj_side].meeple != UND) return 1;
+
+
+	// on check la tuile actuelle
+	if (G->tab[x][y].sides[s].meeple != UND) return 1;
+	if (typecmp(G->tab[x][y].sides[4].type, type)){
+		if (G->tab[x][y].sides[4].meeple != UND) return 1;
+		for (int i = 0 ; i < 4 ; i++){
+			if (i != s){
+				if (typecmp(G->tab[x][y].sides[i].type, type)){
+					if (G->tab[x][y].sides[4].meeple != UND) return 1;
+				}
+			}
+		}
+	}
+	
+	if (s == 4){
+		// on parcourt de tous les côtes qui correspondent
+		// note : ce sera toujours la première récursion car on appelle ensuite que des côtés inférieurs à 4
+		for (int i = 0 ; i < 4 ; i++){
+			if (typecmp(G->tab[x][y].sides[i].type, type)){
+				if (G->tab[x][y].sides[i].meeple != UND) return 1;
+				adj_side = i;
+				new_x = x;
+				new_y = y;
+				adjacent_tile(&new_x, &new_y, &adj_side);
+				if (G->tab[new_x][new_y].id != UND){
+					return is_meeple_on_area(G, new_x, new_y, adj_side, 0);
+				}
+			}
+
+		}
+	}
+				  
+	else{
+		for (int i = 0 ; i < 4 ; i++){
+			if (typecmp(G->tab[x][y].sides[i].type, type) && typecmp(G->tab[x][y].sides[4].type, type)){
+				if (i == s && start == 0) 
+					continue;
+				if (G->tab[x][y].sides[i].meeple != UND) return 1;
+				adj_side = i;
+				new_x = x;
+				new_y = y;
+				adjacent_tile(&new_x, &new_y, &adj_side);
+				if (G->tab[new_x][new_y].id != UND){
+					return is_meeple_on_area(G, new_x, new_y, adj_side, 0);
+				}
+			}
+
+		}
+		if (!typecmp(G->tab[x][y].sides[4].type, type) && start){
+			adj_side = s;
+			new_x = x;
+			new_y = y;
+			adjacent_tile(&new_x, &new_y, &adj_side);
+			if (G->tab[new_x][new_y].id != UND){
+				return is_meeple_on_area(G, new_x, new_y, adj_side, 0);
+			}
+		}
+		
+	}
+	
+	return 0;
+}
+
+
 
 void print_side(side S, int show_meeples, int show_bg_colors){
 	if (show_bg_colors != 0){

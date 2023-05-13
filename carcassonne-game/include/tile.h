@@ -30,11 +30,8 @@ typedef struct side_t{
 
 typedef struct tile_t{
 	int id;                 //if == UND (-1) -> vide
-	side *sides;            //5 cotes
-	int played_by;          //id du joueur qui l'a posee
 	int x, y;               //coordonnees sur la grille, initialisees a -1           
-	int blason;         
-
+	side *sides;            //5 cotes
 }tile;
 
 
@@ -47,7 +44,6 @@ typedef struct stack_t{
 typedef struct grid_t{
 	tile** tab;
 	int nb_tiles;
-
 }grid;
 
 //TILE
@@ -67,12 +63,12 @@ stack* init_stack();
 void free_stack(stack *S);
 
 tile* pop(stack *S);
-void copy_into(tile* Old, tile* New);
-tile* erase(stack *S, int ind);
 void push(stack *S, tile *T);
+tile* erase(stack *S, int ind);
+void place_at_base_of_stack(stack* S, tile* T);
+void copy_into(tile* Old, tile* New);
 void print_stack(stack *S);
 stack* get_tiles_from_file(char* filename);
-void place_at_base_of_stack(stack* S, tile* T);
 void shuffle(stack* S);
 
 
@@ -81,7 +77,8 @@ void shuffle(stack* S);
 grid* init_grid();
 void free_grid(grid* G);
 int is_tile_placeable(grid* G, tile *T, int x, int y);
-int place_tile_on_grid(grid* G, tile *T, int x, int y, int player);
+int place_tile_on_grid(grid* G, tile *T, int x, int y);
+int is_meeple_on_area(grid* G, int x, int y, int s, int start);
 void print_side(side S, int show_meeples, int show_bg_colors);
 void print_grid(grid *G, int show_meeples, int show_bg_colors);
 
