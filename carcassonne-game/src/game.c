@@ -145,22 +145,36 @@ int points_count(game* Game, int x, int y, int s, int start, int meeples[6], int
 
 					int new_x = x, new_y = y, new_s = i;
 					adjacent_tile(&new_x, &new_y, &new_s);
-					if (new_x >= NB_OF_TILES*2-1 || new_x <= 0 || new_y >= NB_OF_TILES*2-1 || new_y <= 0) return -1;    //on sort de la grille -> zone ouverte
-					else if (Game->board->tab[new_x][new_y].id == UND) return -1;     //tuile adjacente vide -> zone ouverte
+					if (new_x >= NB_OF_TILES*2-1 || new_x <= 0 || new_y >= NB_OF_TILES*2-1 || new_y <= 0){ //on sort de la grille -> zone ouverte
+						if (final_evaluation)
+							return nb_points;
+						else
+							return -1;   
+					}   
+					else if (Game->board->tab[new_x][new_y].id == UND){ //tuile adjacente vide -> zone ouverte
+						if (final_evaluation)
+							return nb_points;
+						else
+							return -1;   
+					}
 					else if (i != s){      //tuile adjacente non vide et existante
 						if (!is_in(visited_tiles, Game->board->tab[new_x][new_y].id)){
 							append_visited_tiles(Game->board->tab[new_x][new_y].id);
 							tmp = points_count(Game, new_x, new_y, new_s, 0, meeples, final_evaluation);
-							if (tmp != -1 || final_evaluation){
+							if (final_evaluation && tmp == -1){
+								nb_points+=1;
+							}
+
+							else if (tmp != -1){
 								if ((type == 'c' || type == 'b') && !final_evaluation){
 									nb_points+=tmp+2;
 								}
 								else{
 									nb_points+=tmp+1;
 								}
-							} 
+							}
 							else {
-								return-1; 
+								return-1;
 							}
 							// return nb_points;           //jsp si il faut return mtn
 						}
@@ -173,8 +187,18 @@ int points_count(game* Game, int x, int y, int s, int start, int meeples[6], int
 		else{
 			int new_x = x, new_y = y, new_s = s;
 			adjacent_tile(&new_x, &new_y, &new_s);
-			if (new_x >= NB_OF_TILES*2-1 || new_x <= 0 || new_y >= NB_OF_TILES*2-1 || new_y <= 0) return -1;    //on sort de la grille -> zone ouverte
-			else if (Game->board->tab[new_x][new_y].id == UND) return -1;     //tuile adjacente vide -> zone ouverte
+			if (new_x >= NB_OF_TILES*2-1 || new_x <= 0 || new_y >= NB_OF_TILES*2-1 || new_y <= 0){ //on sort de la grille -> zone ouverte
+				if (final_evaluation)
+					return nb_points;
+				else
+					return -1;    
+			}
+			else if (Game->board->tab[new_x][new_y].id == UND){ //tuile adjacente vide -> zone ouverte
+				if (final_evaluation)
+					return nb_points;
+				else
+					return -1;   
+			} 
 			else if (start == 0){
 				if (Game->board->tab[new_x][new_y].sides[new_s].meeple != UND){
 						meeples[Game->board->tab[new_x][new_y].sides[new_s].meeple]++;
@@ -188,13 +212,18 @@ int points_count(game* Game, int x, int y, int s, int start, int meeples[6], int
 				if (!is_in(visited_tiles, Game->board->tab[new_x][new_y].id)){
 					append_visited_tiles(Game->board->tab[new_x][new_y].id);
 					tmp = points_count(Game, new_x, new_y, new_s, 0, meeples, final_evaluation);
-					if (tmp != -1 || final_evaluation) 
+					if (final_evaluation && tmp == -1){
+						nb_points+=1;
+					}
+					
+					else if (tmp != -1) {
 						if ((type == 'c' || type == 'b') && !final_evaluation){
 							nb_points+=tmp+2;
 						}
 						else{
 							nb_points+=tmp+1;
 						}
+					}
 					else {
 						return-1;
 					}

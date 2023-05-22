@@ -124,7 +124,6 @@ void AI_place_tile(game *G, int ind, int difficulty){
 							potential_score = points_count(G, i, j, s, 1, meeples, 1);
 							if (potential_score <= 0)
 								continue;
-
 							else if (potential_score >= possible_moves[nb_moves-1].score)
 								possible_moves[nb_moves-1].opt_side = s;
 
