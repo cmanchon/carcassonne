@@ -1381,13 +1381,30 @@
 											"height": 13,
 											"text": "+players: player**",
 											"horizontalAlignment": 0
+										},
+										{
+											"_type": "UMLAttributeView",
+											"_id": "AAAAAAGIUt4P2Wm7Q6c=",
+											"_parent": {
+												"$ref": "AAAAAAGH0e/w/LzMDM0="
+											},
+											"model": {
+												"$ref": "AAAAAAGIUt4Pmmm4Kak="
+											},
+											"font": "Arial;13;0",
+											"left": 405,
+											"top": 674,
+											"width": 271,
+											"height": 13,
+											"text": "+difficulty: int",
+											"horizontalAlignment": 0
 										}
 									],
 									"font": "Arial;13;0",
 									"left": 400,
 									"top": 609,
 									"width": 281,
-									"height": 68
+									"height": 83
 								},
 								{
 									"_type": "UMLOperationCompartmentView",
@@ -1400,7 +1417,7 @@
 									},
 									"font": "Arial;13;0",
 									"left": 400,
-									"top": 677,
+									"top": 692,
 									"width": 281,
 									"height": 10
 								},
@@ -1440,7 +1457,7 @@
 							"left": 400,
 							"top": 584,
 							"width": 281,
-							"height": 103,
+							"height": 118,
 							"nameCompartment": {
 								"$ref": "AAAAAAGH0e/w/LzHXZU="
 							},
@@ -3819,6 +3836,15 @@
 							},
 							"name": "players",
 							"type": "player**"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGIUt4Pmmm4Kak=",
+							"_parent": {
+								"$ref": "AAAAAAGH0e/w+7zEtpk="
+							},
+							"name": "difficulty",
+							"type": "int"
 						}
 					]
 				}

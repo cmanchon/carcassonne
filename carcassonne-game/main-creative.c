@@ -70,11 +70,11 @@ void creative_gameplay(game* GC){
 			print_tile(T, 0, 1);
 			printf("\n\nWrite where you want to place the tile:\n");
 			scanf("%d %d", &x, &y);
-			buf = place_tile_on_grid(GC->board, T, x, y, 1);
+			buf = place_tile_on_grid(GC->board, T, x, y);
 		}
 
-		int t[6] = {0};
-		printf("\nis_area_closed(GC->board, x, y, 0, 1) = %d\n\n", is_area_closed(GC, x, y, 0, 1, t));
+		// int t[6] = {0};
+		// printf("\nis_area_closed(GC->board, x, y, 0, 1) = %d\n\n", is_area_closed(GC, x, y, 0, 1, t));
 
 		//meeple
 		char tmpm = ' ';

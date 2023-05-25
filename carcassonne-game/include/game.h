@@ -5,6 +5,8 @@
 #ifndef GAME_H
 #define GAME_H
 
+#define VSIZE 50                //size of *visited_tiles
+
 #define CLEAR "\033[2J\033[H"
 #define SLEEPTIME 3.0
 
@@ -13,6 +15,7 @@ typedef struct game_t{
     player** players;
     stack* deck;
     grid* board;
+    int difficulty;     //of AIs
 }game;
 
 
@@ -29,7 +32,7 @@ void remove_meeples_of_area(game *G, int meeples[6], int x, int y, int s);
 int points_count(game* Game, int x, int y, int s, int start, int meeples[6], int final_evaluation);
 int is_abbey_closed(game* G, int x, int y);
 
-int print_ranking(game *G);
+int ranking(game *G);
 
 game* init_game(char* filename, int nb_players);
 

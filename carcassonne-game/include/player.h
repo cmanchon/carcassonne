@@ -2,7 +2,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#define VSIZE 50                //size of *visited_tiles
 
 typedef struct player_t{
 	int id;

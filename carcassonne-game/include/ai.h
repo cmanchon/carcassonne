@@ -13,7 +13,7 @@ typedef struct possibility_t{
 
 
 void AI_choose_meeple(game *G, int nb_ai);
-void AI_place_tile(game *G, int ind, int difficulty);
+void AI_place_tile(game *G, int ind);
 void AI_place_meeple(game *G, int ind, int x, int y, int s);
 
 #endif

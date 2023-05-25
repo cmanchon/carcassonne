@@ -18,7 +18,7 @@ void AI_choose_meeple(game *G, int nb_ai){
 
 
 
-void AI_place_tile(game *G, int ind, int difficulty){
+void AI_place_tile(game *G, int ind){
 	// dumb AI for the moment
 
 	tile * T = pop(G->players[ind]->hand);
@@ -46,7 +46,7 @@ void AI_place_tile(game *G, int ind, int difficulty){
 
 
 	srand((unsigned) time(NULL));
-	if (difficulty == 0){
+	if (G->difficulty == 0){
 		//dumb IA
 		int rng, proba = 7;
 		int buf, l = 0;
@@ -92,7 +92,7 @@ void AI_place_tile(game *G, int ind, int difficulty){
 		}
 	}
 
-	else if (difficulty > 0 && difficulty < 3){
+	else if (G->difficulty > 0 && G->difficulty < 3){
 		// - liste de coups possibles avec à chaque coup associé un score potentiel ( = 0 si la zone a déjà un ou des meeples différents de celui du joueur)
 		// - tri de la liste en fonction du score probable
 		// - choisit le coup le plus ou moins opti en fonction de la difficulté 
@@ -100,8 +100,9 @@ void AI_place_tile(game *G, int ind, int difficulty){
 		possibility *possible_moves = (possibility*)malloc(0);
 		int nb_moves = 0; 
 		int potential_score = 0;
+		int abbey_score = 0;
 		int meeples[6] = {0};
-
+		int new_x, new_y, new_s;
 
 		for (int degrees = 0 ; degrees < 360 ; degrees += 90){
 
@@ -117,11 +118,40 @@ void AI_place_tile(game *G, int ind, int difficulty){
 						possible_moves[nb_moves-1].score = 0;
 						possible_moves[nb_moves-1].opt_side = UND;
 						
+						abbey_score = 0;
+						if (T->sides[4].type == 'a'){
+
+							if (j < NB_OF_TILES*2-1 && j > 0){
+								if (i>0){
+									if (G->board->tab[i-1][j-1].id != UND) abbey_score++;
+									if (G->board->tab[i-1][j].id != UND) abbey_score++;
+									if (G->board->tab[i-1][j+1].id != UND) abbey_score++;
+								}
+								if (i < NB_OF_TILES*2-1){
+									if (G->board->tab[i+1][j].id != UND) abbey_score++;
+									if (G->board->tab[i+1][j-1].id != UND) abbey_score++;
+									if (G->board->tab[i+1][j+1].id != UND) abbey_score++;
+								}
+								if (G->board->tab[i][j+1].id != UND) abbey_score++;
+								if (G->board->tab[i][j-1].id != UND) abbey_score++;
+								if (G->board->tab[i][j].id != UND) abbey_score++;
+
+							}
+							possible_moves[nb_moves-1].score = abbey_score;
+							possible_moves[nb_moves-1].opt_side = 4;
+
+						}
+
 						
 						// on compte le nombre de points potentiel
 						for (int s = 0 ; s < 5 ; s++){
 							memset(meeples, 0, 6*sizeof(int));
-							potential_score = points_count(G, i, j, s, 1, meeples, 1);
+							new_x = i;
+							new_y = j;
+							new_s = s;
+							adjacent_tile(&new_x, &new_y, &new_s);
+							potential_score = points_count(G, new_x, new_y, new_s, 1, meeples, 1);
+
 							if (potential_score <= 0)
 								continue;
 							else if (potential_score >= possible_moves[nb_moves-1].score)
@@ -136,6 +166,7 @@ void AI_place_tile(game *G, int ind, int difficulty){
 								k++;
 							}
 
+							sleep(1);
 							if (!other_meeple)
 								possible_moves[nb_moves-1].score += potential_score;
 
@@ -155,12 +186,6 @@ void AI_place_tile(game *G, int ind, int difficulty){
 
 		}
 
-		//Debug
-		for (int k = 0 ; k < nb_moves ; k ++){
-			printf("%d : (%d;%d); ", possible_moves[k].score, possible_moves[k].x, possible_moves[k].y);
-		}
-		printf("\n\n");
-		sleep(5);
 
 		//tri de possible_moves en fonction du score
 		int sorted = 0;
@@ -183,7 +208,7 @@ void AI_place_tile(game *G, int ind, int difficulty){
 		i = 0;
 		while (1){
 			rng = rand() % nb_moves+1;
-			if (rng*difficulty >= nb_moves/2){
+			if (rng*G->difficulty >= nb_moves/2){
 
 				rotate_tile(T, possible_moves[i].rotation);
 				place_tile_on_grid(G->board, T, possible_moves[i].x, possible_moves[i].y);
@@ -204,7 +229,7 @@ void AI_place_tile(game *G, int ind, int difficulty){
 		free(possible_moves);
 	}
 	else{
-		printf("error AI_place_tile(): difficulty smaller than 0 or greater than 3");
+		printf("error AI_place_tile(): difficulty smaller than 0 or greater than 2");
 		exit(1);
 	}
 
@@ -265,12 +290,13 @@ void AI_place_meeple(game *G, int ind, int x, int y, int s){
 	//évaluation
 	int t[6] = {0};
 	int nb_points;
+	is_abbey_closed(G, x, y);
 	for (int j = 0 ; j < 4 ; j++){
 		nb_points = points_count(G, x, y, j, 1, t, 0);
 		if (nb_points > 0){
 			give_points_to_max(G, t, nb_points);
 			remove_meeples_of_area(G, t, x, y, j);
-			sleep(10);
+			sleep(SLEEPTIME*2);
 
 		}
 		memset(t, 0, 6*sizeof(int));

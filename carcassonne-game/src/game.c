@@ -6,6 +6,7 @@ game* init_game(char* filename, int nb_players){
 	G->board = init_grid();
 	G->deck = get_tiles_from_file(filename);
 	G->players = (player**)malloc(nb_players * sizeof(player*));
+	G->difficulty = 2;
 	
 	for (int i = 0 ; i < nb_players ; i++){
 		G->players[i] = init_player(i+1, UND);
@@ -17,6 +18,20 @@ game* init_game(char* filename, int nb_players){
 
 void free_game(game *G){
 	if (G == NULL) return;
+
+	if (G->board->nb_tiles < NB_OF_TILES && G->deck->nb_tiles < NB_OF_TILES){
+		//si la partie n'a pas été terminée -> on affiche le classement
+		for (int i = 0 ; i < G->nb_players ; i++){
+			if (G->players[i]->score > 0){
+				printf(CLEAR);
+				int winner = ranking(G);
+				printf("\n\nPlayer %s%d%s was in the lead with %d points.\n\n", BOLD, G->players[winner]->id, END_FORMAT, G->players[winner]->score);
+				break;
+			}
+		}
+	
+	}
+
 	for (int i = 0 ; i < G->nb_players ; i++){
 		free_player(G->players[i]);
 	}
@@ -83,12 +98,11 @@ int points_count(game* Game, int x, int y, int s, int start, int meeples[6], int
 			visited_tiles[i] = UND;
 		}
 	} 
+	
 
 
 	if (Game->board->tab[x][y].sides[s].meeple != UND){
 			meeples[Game->board->tab[x][y].sides[s].meeple]++;
-			if (final_evaluation)
-				Game->board->tab[x][y].sides[s].meeple = UND;
 	}
 
 	char type = Game->board->tab[x][y].sides[s].type;
@@ -120,40 +134,33 @@ int points_count(game* Game, int x, int y, int s, int start, int meeples[6], int
 		}
 		if (Game->board->tab[x][y].sides[4].meeple != UND){
 			meeples[Game->board->tab[x][y].sides[4].meeple]++;
-			if (final_evaluation)
-				Game->board->tab[x][y].sides[4].meeple = UND;
 		}
 		if (nb_points == 9 || final_evaluation) return nb_points;   
 		else return -1;
 	}
 	if (s != 4){
-		//on compte les points de cette tuile :
 		if (typecmp(Game->board->tab[x][y].sides[4].type, type)){
 			if (Game->board->tab[x][y].sides[4].meeple != UND){
 				meeples[Game->board->tab[x][y].sides[4].meeple]++;
-				if (final_evaluation)
-					Game->board->tab[x][y].sides[4].meeple = UND;
 			}	
 
 			for (int i = 0 ; i < 4 ; i++){
 				if (typecmp(type, Game->board->tab[x][y].sides[i].type)){
 					if (Game->board->tab[x][y].sides[i].meeple != UND){
 						meeples[Game->board->tab[x][y].sides[i].meeple]++;
-						if (final_evaluation)
-							Game->board->tab[x][y].sides[i].meeple = UND;
 					}
 
 					int new_x = x, new_y = y, new_s = i;
 					adjacent_tile(&new_x, &new_y, &new_s);
 					if (new_x >= NB_OF_TILES*2-1 || new_x <= 0 || new_y >= NB_OF_TILES*2-1 || new_y <= 0){ //on sort de la grille -> zone ouverte
 						if (final_evaluation)
-							return nb_points;
+							return nb_points+1;
 						else
 							return -1;   
 					}   
 					else if (Game->board->tab[new_x][new_y].id == UND){ //tuile adjacente vide -> zone ouverte
 						if (final_evaluation)
-							return nb_points;
+							return nb_points+1;
 						else
 							return -1;   
 					}
@@ -184,26 +191,24 @@ int points_count(game* Game, int x, int y, int s, int start, int meeples[6], int
 			} 
 
 		}
-		else{
+		else{ //[4].type != type
 			int new_x = x, new_y = y, new_s = s;
 			adjacent_tile(&new_x, &new_y, &new_s);
 			if (new_x >= NB_OF_TILES*2-1 || new_x <= 0 || new_y >= NB_OF_TILES*2-1 || new_y <= 0){ //on sort de la grille -> zone ouverte
 				if (final_evaluation)
-					return nb_points;
+					return nb_points+1;
 				else
 					return -1;    
 			}
 			else if (Game->board->tab[new_x][new_y].id == UND){ //tuile adjacente vide -> zone ouverte
 				if (final_evaluation)
-					return nb_points;
+					return nb_points+1;
 				else
 					return -1;   
 			} 
 			else if (start == 0){
 				if (Game->board->tab[new_x][new_y].sides[new_s].meeple != UND){
-						meeples[Game->board->tab[new_x][new_y].sides[new_s].meeple]++;
-						if (final_evaluation)
-							Game->board->tab[new_x][new_y].sides[new_s].meeple = UND;
+					meeples[Game->board->tab[new_x][new_y].sides[new_s].meeple]++;
 				}
 				if ((type == 'b' || type == 'c') && !final_evaluation) return nb_points+2;
 				else return nb_points+1;
@@ -222,6 +227,7 @@ int points_count(game* Game, int x, int y, int s, int start, int meeples[6], int
 						}
 						else{
 							nb_points+=tmp+1;
+
 						}
 					}
 					else {
@@ -471,7 +477,7 @@ void remove_meeples_of_area(game *G, int meeples[6], int x, int y, int s){
 }
 
 
-int print_ranking(game *G){
+int ranking(game *G){
 	//returns the index of the winner 
 
 	int i;
@@ -602,11 +608,33 @@ game* start_game(char* filename){
 		G->players[i]->meeple_color = tmp;
 	}
 
-
-	if (nb_ai > 0) 
+	if (nb_ai > 0) {
 		AI_choose_meeple(G, nb_ai);
+		printf("\nAI difficulty is set to 2 (hard) by default. Do you want to change it? (Y/N)\n");
+		char choice = ' ';
+		scanf(" %c", &choice);
+		if (choice == 'Y'){
+			printf("\n0 = DUMB\n");
+			printf("1 = EASY\n");
+			printf("2 = HARD\n\n");
+			printf("Choose your difficulty [0;2]:\n");
+			tmp = UND; 
+			l = 0;
+			while ((tmp < 0 || tmp > 2) && l <= 5){
+				scanf("%d", &tmp);
+				l++;
+			}
+			if (tmp >= 0 && tmp <= 2){
+				G->difficulty = tmp;
+				printf("\nAI difficulty was set to %d.\n", G->difficulty);
+				sleep(SLEEPTIME);
+			}
 
+		}
 
+	}
+
+	//tuile de départ
 	rotate_tile(&G->deck->tab[G->deck->nb_tiles-1], 270);
 	tile *T = pop(G->deck);
 	place_tile_on_grid(G->board, T, 72, 72);
@@ -639,7 +667,7 @@ void gameplay(game *G){
 		return;
 	}
 
-	int show_meeples = 0, difficulty = 2;
+	int show_meeples = 0;
 	while (G->board->nb_tiles < NB_OF_TILES){
 		for (int i = 0 ; i < G->nb_players ; i++){
 
@@ -654,7 +682,7 @@ void gameplay(game *G){
 				continue;
 			} 
 			if (G->players[i]->id > 6){			//AI
-				AI_place_tile(G, i, difficulty);
+				AI_place_tile(G, i);
 				continue;
 			}
 			tile * T = pop(G->players[i]->hand);
@@ -705,7 +733,7 @@ void gameplay(game *G){
 				}
 				else if (tmp == 'C'){
 					printf(CLEAR);
-					print_ranking(G);
+					ranking(G);
 					tmp = ' ';
 				}
 				else{
@@ -870,7 +898,7 @@ void gameplay(game *G){
 	sleep(SLEEPTIME/(2.0/3.0));
 
 	printf(CLEAR);
-	int winner = print_ranking(G);
+	int winner = ranking(G);
 
 	sleep(SLEEPTIME/3.0);
 	printf("\n\n\nCongrats to Player %s%d%s who won with %d points!\n\n", BOLD, G->players[winner]->id, END_FORMAT, G->players[winner]->score);

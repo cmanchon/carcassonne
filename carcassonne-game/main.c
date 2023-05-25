@@ -10,7 +10,6 @@ int main(int argc, char **argv){
 	gameplay(G);
 	free_game(G);
 
-
-
 	return 0;
 }
+
