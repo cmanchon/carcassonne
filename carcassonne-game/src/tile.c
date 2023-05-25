@@ -447,10 +447,13 @@ int is_meeple_on_area(grid* G, int x, int y, int s, int start){
 	//checks if there's a meeple on the area of the side s of the tile at (x, y)
 	//fonction récursive
 
+	if (s < 0 || s > 4)
+		return 0;
+
 	char type = G->tab[x][y].sides[s].type;
 
 	// conditions d'arrêt
-	if (G->tab[x][y].sides[4].type == 'a' && G->tab[x][y].sides[4].meeple == UND && s == 4) return 0;
+	if ((G->tab[x][y].sides[4].type == 'a' || G->tab[x][y].sides[4].type == 'v') && G->tab[x][y].sides[4].meeple == UND && s == 4) return 0;
 	int new_x = x, new_y = y, adj_side = s;
 	adjacent_tile(&new_x, &new_y, &adj_side);
 

@@ -6,7 +6,7 @@ game* init_game(char* filename, int nb_players){
 	G->board = init_grid();
 	G->deck = get_tiles_from_file(filename);
 	G->players = (player**)malloc(nb_players * sizeof(player*));
-	G->difficulty = 2;
+	G->difficulty = DFLT_DIFFICULTY;
 	
 	for (int i = 0 ; i < nb_players ; i++){
 		G->players[i] = init_player(i+1, UND);
@@ -86,8 +86,9 @@ void print_visited_tiles(){
 
 
 int points_count(game* Game, int x, int y, int s, int start, int meeples[6], int final_evaluation){
-	//checks if in area is closed, returns the number of points if yes and -1 otherwise.
-	//if final evaluation -> on compte les points même si la zone est ouverte
+	//checks if in area is closed
+	//if !final_evalutation -> returns the number of points if closed and -1 otherwise.
+	//if final evaluation 	-> always returns the number of points
 	//meeples contient le nombre d'occurence de chaque meeple, meeple[i] étant le meeple de couleur i (par defaut = {0, 0, 0, 0, 0, 0})
 	//fonction recursive
 
@@ -113,9 +114,9 @@ int points_count(game* Game, int x, int y, int s, int start, int meeples[6], int
 		else
 			nb_points+=2;
 	}
-	// conditions d'arrêt
-	//      abbaye
-	if (s == 4 && type == 'a' && !typecmp(Game->board->tab[x][y].sides[0].type,type) && !typecmp(Game->board->tab[x][y].sides[1].type, type) && !typecmp(Game->board->tab[x][y].sides[2].type, type) && !typecmp(Game->board->tab[x][y].sides[3].type, type)){      
+
+	//      abbaye ou village
+	if (s == 4 && (type == 'a' || type =='v') && !typecmp(Game->board->tab[x][y].sides[0].type,type) && !typecmp(Game->board->tab[x][y].sides[1].type, type) && !typecmp(Game->board->tab[x][y].sides[2].type, type) && !typecmp(Game->board->tab[x][y].sides[3].type, type)){      
 		if (y < NB_OF_TILES*2-1 && y > 0){
 			if (x>0){
 				if (Game->board->tab[x-1][y-1].id != UND) nb_points++;
@@ -267,19 +268,22 @@ int points_count(game* Game, int x, int y, int s, int start, int meeples[6], int
 
 int get_meeples_player(game *G, int meeple){
 	for (int i = 0 ; i < G->nb_players ; i++){
-		if (G->players[i]->meeple_color == meeple) return i;
+		// if (G->players[i]->meeple_color == meeple) return i;
+		if (G->players[i]->meeple_color == meeple){
+			return i;
+		}
 	}
 	return UND;
 }
 
 
 int is_abbey_closed(game* G, int x, int y){
-	// checks if the tile at (x;y) is an abbey and if it's closed, or if the tile at (x;y) closes an abbey
+	// checks if the tile at (x;y) is an abbey and if it's closed, or if the tile at (x;y) closes an abbey or a village
 	// if so, gives 9 points to the according player
 
 	int nb_points = 0;
 
-	if (G->board->tab[x][y].sides[4].type == 'a'){
+	if (G->board->tab[x][y].sides[4].type == 'a' || G->board->tab[x][y].sides[4].type == 'v'){
 		if (G->board->tab[x][y].sides[4].meeple == UND)
 			return 0;
 		if (y < NB_OF_TILES*2-1 && y > 0){
@@ -304,7 +308,10 @@ int is_abbey_closed(game* G, int x, int y){
 			G->players[player_ind]->meeple_number ++;
 			G->board->tab[x][y].sides[4].meeple = UND;
 
-			printf("\nAn abbey was completed, 9 points were given to\n\tPlayer %s%d%s\n", BOLD, G->players[player_ind]->id, END_FORMAT);
+			if (G->board->tab[x][y].sides[4].type == 'a')
+				printf("\nAn abbey was completed, 9 points were given to\n\tPlayer %s%d%s\n", BOLD, G->players[player_ind]->id, END_FORMAT);
+			else if (G->board->tab[x][y].sides[4].type == 'v')
+				printf("\nA village was completed, 9 points were given to\n\tPlayer %s%d%s\n", BOLD, G->players[player_ind]->id, END_FORMAT);
 			sleep(SLEEPTIME);
 			return 1;
 		}
@@ -312,17 +319,25 @@ int is_abbey_closed(game* G, int x, int y){
 
 	else if (y < NB_OF_TILES*2-1 && y > 0){
 		if (x>0){
-			if (G->board->tab[x-1][y-1].sides[4].type == 'a') return is_abbey_closed(G, x-1, y-1);
-			if (G->board->tab[x-1][y].sides[4].type == 'a') return is_abbey_closed(G, x-1, y);
-			if (G->board->tab[x-1][y+1].sides[4].type == 'a') return is_abbey_closed(G, x-1, y+1);
+			if (G->board->tab[x-1][y-1].sides[4].type == 'a' || G->board->tab[x-1][y-1].sides[4].type == 'v') 
+				return is_abbey_closed(G, x-1, y-1);
+			if (G->board->tab[x-1][y].sides[4].type == 'a' || G->board->tab[x-1][y].sides[4].type == 'v') 
+				return is_abbey_closed(G, x-1, y);
+			if (G->board->tab[x-1][y+1].sides[4].type == 'a' || G->board->tab[x-1][y+1].sides[4].type == 'v') 
+				return is_abbey_closed(G, x-1, y+1);
 		}
 		if (x < NB_OF_TILES*2-1){
-			if (G->board->tab[x+1][y].sides[4].type == 'a') return is_abbey_closed(G, x+1, y);
-			if (G->board->tab[x+1][y-1].sides[4].type == 'a') return is_abbey_closed(G, x+1, y-1);
-			if (G->board->tab[x+1][y+1].sides[4].type == 'a') return is_abbey_closed(G, x+1, y+1);
+			if (G->board->tab[x+1][y].sides[4].type == 'a' || G->board->tab[x+1][y].sides[4].type == 'v') 
+				return is_abbey_closed(G, x+1, y);
+			if (G->board->tab[x+1][y-1].sides[4].type == 'a' || G->board->tab[x+1][y-1].sides[4].type == 'v') 
+				return is_abbey_closed(G, x+1, y-1);
+			if (G->board->tab[x+1][y+1].sides[4].type == 'a' || G->board->tab[x+1][y+1].sides[4].type == 'v') 
+				return is_abbey_closed(G, x+1, y+1);
 		}
-		if (G->board->tab[x][y+1].sides[4].type == 'a') return is_abbey_closed(G, x, y+1);
-		if (G->board->tab[x][y-1].sides[4].type == 'a') return is_abbey_closed(G, x, y-1);
+		if (G->board->tab[x][y+1].sides[4].type == 'a' || G->board->tab[x][y+1].sides[4].type == 'v') 
+			return is_abbey_closed(G, x, y+1);
+		if (G->board->tab[x][y-1].sides[4].type == 'a' || G->board->tab[x][y-1].sides[4].type == 'v') 
+			return is_abbey_closed(G, x, y-1);
 
 	}
 	
@@ -352,14 +367,17 @@ void give_points_to_max(game *G, int meeples[6], int points){
 		}
 	}
 
+
 	//give points to player_max
 	if (player_max[0] != UND && G->board->nb_tiles < NB_OF_TILES){		//on n'affiche pas si c'est la fin de la partie
 		i = 0;
+		int ind;
 		printf("\nAn area was completed, %d points were given to\n", points);
 		while (player_max[i] != UND){
-			G->players[player_max[i]]->score += points;
+			ind = player_max[i];
+			G->players[ind]->score += points;
 			usleep(500000);
-			printf("\tPlayer %s%d%s\n", BOLD, G->players[player_max[i]]->id, END_FORMAT);
+			printf("\tPlayer %s%d%s\n", BOLD, G->players[ind]->id, END_FORMAT);
 			i++;
 		} 	
 		sleep(SLEEPTIME);
@@ -375,7 +393,7 @@ void remove_meeples_of_area(game *G, int meeples[6], int x, int y, int s){
 	int empty[6] = {0};
 	int i;
 
-	if (type == 'a'){
+	if (type == 'a' || type == 'v'){
 		meeples[G->board->tab[x][y].sides[4].meeple]--;
 		G->board->tab[x][y].sides[4].meeple = UND;
 		return;
@@ -610,7 +628,7 @@ game* start_game(char* filename){
 
 	if (nb_ai > 0) {
 		AI_choose_meeple(G, nb_ai);
-		printf("\nAI difficulty is set to 2 (hard) by default. Do you want to change it? (Y/N)\n");
+		printf("\nAI difficulty is set to %s2%s (hard) by default. Press %sY%s to change it.\n", BOLD, END_FORMAT, BOLD, END_FORMAT);
 		char choice = ' ';
 		scanf(" %c", &choice);
 		if (choice == 'Y'){

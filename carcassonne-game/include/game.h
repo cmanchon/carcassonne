@@ -6,6 +6,7 @@
 #define GAME_H
 
 #define VSIZE 50                //size of *visited_tiles
+#define DFLT_DIFFICULTY 2
 
 #define CLEAR "\033[2J\033[H"
 #define SLEEPTIME 3.0

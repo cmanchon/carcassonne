@@ -119,7 +119,7 @@ void AI_place_tile(game *G, int ind){
 						possible_moves[nb_moves-1].opt_side = UND;
 						
 						abbey_score = 0;
-						if (T->sides[4].type == 'a'){
+						if (T->sides[4].type == 'a' || T->sides[4].type == 'v'){
 
 							if (j < NB_OF_TILES*2-1 && j > 0){
 								if (i>0){
@@ -242,7 +242,7 @@ void AI_place_meeple(game *G, int ind, int x, int y, int s){
 
 	int meeple_placed = 0;
 
-	if (s > UND){
+	if (s > UND && !is_meeple_on_area(G->board, x, y, s, 1)){
 		place_meeple_on_tile(&G->board->tab[x][y], s, G->players[ind]);
 		meeple_placed = 1;
 	}
@@ -251,7 +251,7 @@ void AI_place_meeple(game *G, int ind, int x, int y, int s){
 		srand((unsigned) time(NULL));
 		int proba = 6, rng;
 		rng = rand() % 11; 			//l'IA a 4 chances sur 10 de poser un meeple
-		if (G->board->tab[x][y].sides[4].type == 'a' && G->players[ind]->meeple_number > 0 && rng > proba-2){
+		if ((G->board->tab[x][y].sides[4].type == 'a' || G->board->tab[x][y].sides[4].type == 'v') && G->players[ind]->meeple_number > 0 && rng > proba-2){
 			place_meeple_on_tile(&G->board->tab[x][y], 4, G->players[ind]);
 			meeple_placed = 1;
 		} 
@@ -295,6 +295,7 @@ void AI_place_meeple(game *G, int ind, int x, int y, int s){
 		nb_points = points_count(G, x, y, j, 1, t, 0);
 		if (nb_points > 0){
 			give_points_to_max(G, t, nb_points);
+
 			remove_meeples_of_area(G, t, x, y, j);
 			sleep(SLEEPTIME*2);
 
