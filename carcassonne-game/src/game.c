@@ -922,7 +922,6 @@ void gameplay(game *G){
 	printf("\n\n\nCongrats to Player %s%d%s who won with %d points!\n\n", BOLD, G->players[winner]->id, END_FORMAT, G->players[winner]->score);
 
 
-	free_game(G);
 	return;   
 }
 
