@@ -63,7 +63,7 @@ void AI_place_tile(game *G, int ind){
 							printf(CLEAR);
 							print_player(G->players[ind]);
 							printf("\n");
-							print_grid(G->board, 0, 1);
+							print_grid(G->board, 0, 1, i, j);
 							printf("\n\nPlayer %s%d%s (AI) placed a tile at (%d ; %d).\n", BOLD, G->players[ind]->id, END_FORMAT, i, j);
 							sleep(5);
 							free_tile(T);
@@ -181,6 +181,7 @@ void AI_place_tile(game *G, int ind){
 				// la tuile ne peut pas être posée -> on en pioche une autre et on recommence la boucle
 				place_at_base_of_stack(G->players[ind]->hand, T);
 				T = pop(G->players[i]->hand);
+				possible_moves = realloc(possible_moves, 0);
 				degrees = 0;
 			}
 
@@ -215,7 +216,7 @@ void AI_place_tile(game *G, int ind){
 				printf(CLEAR);
 				print_player(G->players[ind]);
 				printf("\n");
-				print_grid(G->board, 0, 1);
+				print_grid(G->board, 0, 1, possible_moves[i].x, possible_moves[i].y);
 				printf("\n\nPlayer %s%d%s (AI) placed a tile at (%d ; %d).\n", BOLD, G->players[ind]->id, END_FORMAT, possible_moves[i].x, possible_moves[i].y);
 				sleep(5);
 				free_tile(T);
@@ -282,7 +283,7 @@ void AI_place_meeple(game *G, int ind, int x, int y, int s){
 		printf(CLEAR);
 		print_player(G->players[ind]);
 		printf("\n");
-		print_grid(G->board, 1, 0);
+		print_grid(G->board, 1, 0, x, y);
 		printf("\n\nPlayer %s%d%s (AI) placed a tile at (%d ; %d).\n", BOLD, G->players[ind]->id, END_FORMAT, x, y);
 		sleep(2);
 	}

@@ -102,7 +102,7 @@ void rotate_tile(tile* T, int degrees){
 		T->sides[0].type = tmpc1;
 
 	}
-	else if (degrees == 180){
+	else if (degrees == 180 || degrees == -180){
 		rotate_tile(T, 90);
 		rotate_tile(T, 90);
 	}
@@ -614,12 +614,24 @@ void print_side(side S, int show_meeples, int show_bg_colors){
 // 
 
 
-void print_grid(grid *G, int show_meeples, int show_bg_colors){
+void print_grid(grid *G, int show_meeples, int show_bg_colors, int X_highlight, int Y_highlight){
 	//on parcourt une première fois pour établir la fenêtre d'où sont les tuiles placées 
 	if (G->nb_tiles == 0){
 		printf("Empty grid.\n");
 		return;
 	}
+
+
+	// char *highlight_TR = "\u25E5"; 
+	// char *highlight_TL = "\u25E4"; 
+	// char *highlight_BR = "\u25E2"; 
+	// char *highlight_BL = "\u25E3"; 
+	
+	char *highlight_TR = "-"; 
+	char *highlight_TL = "-"; 
+	char *highlight_BR = "-"; 
+	char *highlight_BL = "-"; 
+
 
 	int maxX = -1, maxY = -1;
 	int minX = NB_OF_TILES*2, minY = NB_OF_TILES*2;
@@ -655,11 +667,20 @@ void print_grid(grid *G, int show_meeples, int show_bg_colors){
 		for (int i = minX ; i < maxX+1 ; i++){
 			if (G->tab[i][j].id != UND){
 				print_side(G->tab[i][j].sides[0], show_meeples, show_bg_colors);
-				printf("      ");
+				if (j == Y_highlight && i == X_highlight)
+					printf(" %s ", highlight_TR);
+				else
+					printf("   ");
 			}
 			else{
-				printf("         ");
+				printf("      ");
 			}
+
+			//case suivante
+			if (j == Y_highlight && i == X_highlight-1)
+				printf(" %s ", highlight_TL);
+			else
+				printf("   ");
 		}
 		printf("\n");
 
@@ -683,11 +704,21 @@ void print_grid(grid *G, int show_meeples, int show_bg_colors){
 		for (int i = minX ; i < maxX+1 ; i++){
 			if (G->tab[i][j].id != UND){
 				print_side(G->tab[i][j].sides[2], show_meeples, show_bg_colors);
-				printf("      ");
+				if (j == Y_highlight && i == X_highlight)
+					printf(" %s ", highlight_BR);
+				else
+					printf("   ");
 			}
 			else{
-				printf("         ");
+				printf("      ");
 			}
+
+			//case suivante
+			if (j == Y_highlight && i == X_highlight-1)
+				printf(" %s ", highlight_BL);
+			else
+				printf("   ");
+
 		}
 		printf("\n");
 

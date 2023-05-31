@@ -80,7 +80,7 @@ int is_tile_placeable(grid* G, tile *T, int x, int y);
 int place_tile_on_grid(grid* G, tile *T, int x, int y);
 int is_meeple_on_area(grid* G, int x, int y, int s, int start);
 void print_side(side S, int show_meeples, int show_bg_colors);
-void print_grid(grid *G, int show_meeples, int show_bg_colors);
+void print_grid(grid *G, int show_meeples, int show_bg_colors, int X_highlight, int Y_highlight);
 
 
 

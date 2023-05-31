@@ -630,7 +630,8 @@ game* start_game(char* filename){
 		AI_choose_meeple(G, nb_ai);
 		printf("\nAI difficulty is set to %s2%s (hard) by default. Press %sY%s to change it.\n", BOLD, END_FORMAT, BOLD, END_FORMAT);
 		char choice = ' ';
-		scanf(" %c", &choice);
+		getchar();
+		choice = (char) getchar();
 		if (choice == 'Y'){
 			printf("\n0 = DUMB\n");
 			printf("1 = EASY\n");
@@ -693,7 +694,7 @@ void gameplay(game *G){
 				printf(CLEAR);
 				print_player(G->players[i]);
 				printf("\n");
-				print_grid(G->board, show_meeples, !show_meeples);
+				print_grid(G->board, show_meeples, !show_meeples, UND, UND);
 				printf("\n\nYou've placed all your tiles. Skiping to next player.\n");
 				sleep(SLEEPTIME);
 
@@ -711,7 +712,7 @@ void gameplay(game *G){
 				printf(CLEAR);
 				print_player(G->players[i]);
 				printf("\n");
-				print_grid(G->board, show_meeples, !show_meeples);
+				print_grid(G->board, show_meeples, !show_meeples, UND, UND);
 				printf("\n\nTile drawn: \n");
 				print_tile(T, 0, 1);   
 				printf("\nPress:\n");
@@ -740,9 +741,60 @@ void gameplay(game *G){
 					tmp = ' ';
 				}
 				else if (tmp == 'P'){
-					place_at_base_of_stack(G->players[i]->hand, T);
-					T = pop(G->players[i]->hand);
-					tmp = ' ';
+					//on vérifie que la tuine ne peut pas être posée
+					
+					// on établit une fenêtre des tuiles placées pour ne pas avoir à parcourir tout le plateau
+					int maxX = -1, maxY = -1;
+					int minX = NB_OF_TILES*2, minY = NB_OF_TILES*2;
+					int i, j;
+					for (i = 0 ; i < NB_OF_TILES*2-1 ; i++){
+						for (j = 0 ; j < NB_OF_TILES*2-1 ; j++){
+							if (G->board->tab[i][j].id != UND){
+								if (minX > i) minX = i;
+								if (minY > j) minY = j;
+
+								if (maxX < i) maxX = i;
+								if (maxY < j) maxY = j;
+							}
+						}
+					}
+					if (minX > 0) minX--;
+					if (minY > 0) minY--;
+					if (maxX < NB_OF_TILES*2-1) maxX++;
+					if (maxY < NB_OF_TILES*2-1) maxY++;
+
+					int placeable = 0;
+					for (int degrees = 0 ; degrees < 360 ; degrees += 90){
+
+						for (int x = minX ; x < maxX ; x++){
+							for (int y = minY ; y < maxY ; y++){
+								if (is_tile_placeable(G->board, T, x, y)){
+									placeable = 1;
+
+									//on sort des boucles
+									x = maxX;
+									y = maxY;
+									rotate_tile(T, -degrees-90);
+									degrees = 360;
+								}
+							}
+						}
+						rotate_tile(T, 90);
+					}
+					if (placeable){
+						printf("\nThis tile can be placed.\n\n");
+						sleep(SLEEPTIME);
+						tmp = ' ';
+					}
+					else{
+						place_at_base_of_stack(G->players[i]->hand, T);
+						if (G->players[i]->hand->nb_tiles == 1){
+							tmp = 'S';
+							break;
+						}
+						T = pop(G->players[i]->hand);
+						tmp = ' ';
+					}
 				}
 				else if (tmp == 'Q'){
 					free_tile(T);
@@ -752,6 +804,8 @@ void gameplay(game *G){
 				else if (tmp == 'C'){
 					printf(CLEAR);
 					ranking(G);
+					getchar();
+					getchar();
 					tmp = ' ';
 				}
 				else{
@@ -772,6 +826,12 @@ void gameplay(game *G){
 				}
 			}
 
+			if (tmp == 'S'){		//skipping turn
+				printf("\n\nYour tile cannot be placed. Skipping to next player.\n");
+				sleep(SLEEPTIME);
+				continue;
+			}
+
 			//placement
 			int x = UND, y = UND;
 			int buf = 0;
@@ -780,7 +840,7 @@ void gameplay(game *G){
 				printf(CLEAR);
 				print_player(G->players[i]);
 				printf("\n");
-				print_grid(G->board, 0, 1);
+				print_grid(G->board, 0, 1, UND, UND);
 				printf("\n\nYour tile:\n");
 				print_tile(T, 0, 1);
 				printf("\n\nWrite where you want to place the tile (x ; y):\n");
@@ -801,7 +861,7 @@ void gameplay(game *G){
 			printf(CLEAR);
 			print_player(G->players[i]);
 			printf("\n");
-			print_grid(G->board, 0, 1);
+			print_grid(G->board, 0, 1, x, y);
 			sleep(SLEEPTIME/3);
 
 			char tmpm = ' ';
@@ -822,7 +882,7 @@ void gameplay(game *G){
 						printf(CLEAR);
 						print_player(G->players[i]);
 						printf("\n");
-						print_grid(G->board, show_meeples, !show_meeples);
+						print_grid(G->board, show_meeples, !show_meeples, x, y);
 
 					}
 				}
@@ -834,7 +894,7 @@ void gameplay(game *G){
 						printf(CLEAR);
 						print_player(G->players[i]);
 						printf("\n");
-						print_grid(G->board, 1, 0);
+						print_grid(G->board, 1, 0, x, y);
 						printf("\nEnter a negative value to cancel.\n");
 						printf("\nYour tile is at (%d ; %d).\n\n", x, y);
 						printf("Which side?\n");
@@ -850,7 +910,7 @@ void gameplay(game *G){
 					printf(CLEAR);
 					print_player(G->players[i]);
 					printf("\n");
-					print_grid(G->board, 1, 0);
+					print_grid(G->board, 1, 0, x, y);
 					sleep(SLEEPTIME / (2.0/3.0));
 				}
 				else if (tmpm == 'Q'){
@@ -886,6 +946,8 @@ void gameplay(game *G){
 	printf("All the tiles were played: end of game!\n\n");
 	usleep(500000);
 	printf("Last evaluation...");
+	sleep(SLEEPTIME/1.5);
+	
 	// il faut parcourir la grille une fois de plus pour récupérer les points de chaque zone où il y a un ou des meeples, pour ensuite donner les points aux joueurs
 	
 	int t[6] = {0};
