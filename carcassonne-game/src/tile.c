@@ -237,6 +237,7 @@ tile* erase(stack *S, int ind){
 
 void place_at_base_of_stack(stack* S, tile* T){
 	//places T at the base of S, useful if a player needs to draw another tile
+
 	tile* tmp= init_tile(' ', ' ', ' ', ' ', ' ', UND);
 	push(S, tmp);
 

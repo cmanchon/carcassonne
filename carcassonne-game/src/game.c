@@ -559,30 +559,19 @@ game* start_game(char* filename){
 	int nb_ai = 0;
 	l = 0;
 	if (tmp < 6){
-		char choice;
-		printf("\nDo you want to add AIs?\nNote: you can't add more than %d.\n", 6-tmp);
 		
 		nb_ai = UND;
+
+		printf("How many AIs do you want to add? [0 ; %d]\n", 6-tmp);
 		while (nb_ai < 0 || nb_ai > 6-tmp){
-			scanf(" %c", &choice);
+			scanf("%d", &nb_ai);
 
-			if (choice == 'Y'){
-				printf("How many AIs do you want to add? [0 ; %d]\n", 6-tmp);
-				while (nb_ai < 0 || nb_ai > 6-tmp){
-					scanf("%d", &nb_ai);
-
-					if (l >=5){
-						printf("\nToo many tries. Keeping the number of AIs to 0.\n\n");
-						nb_ai = 0;
-						break;
-					}
-					l++;
-				}
-			}
-			else if (atoi(&choice) > 0)
-				nb_ai = atoi(&choice);
-			else 
+			if (l >=5){
+				printf("\nToo many tries. Keeping the number of AIs to 0.\n\n");
 				nb_ai = 0;
+				break;
+			}
+			l++;
 		}
 		
 	}
@@ -741,7 +730,7 @@ void gameplay(game *G){
 					tmp = ' ';
 				}
 				else if (tmp == 'P'){
-					//on vérifie que la tuine ne peut pas être posée
+					//on vérifie que la tuile ne peut pas être posée
 					
 					// on établit une fenêtre des tuiles placées pour ne pas avoir à parcourir tout le plateau
 					int maxX = -1, maxY = -1;
@@ -766,8 +755,8 @@ void gameplay(game *G){
 					int placeable = 0;
 					for (int degrees = 0 ; degrees < 360 ; degrees += 90){
 
-						for (int x = minX ; x < maxX ; x++){
-							for (int y = minY ; y < maxY ; y++){
+						for (int x = minX ; x <= maxX ; x++){
+							for (int y = minY ; y <= maxY ; y++){
 								if (is_tile_placeable(G->board, T, x, y)){
 									placeable = 1;
 

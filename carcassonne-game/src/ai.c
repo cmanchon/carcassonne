@@ -97,6 +97,7 @@ void AI_place_tile(game *G, int ind){
 		// - tri de la liste en fonction du score probable
 		// - choisit le coup le plus ou moins opti en fonction de la difficulté 
 
+
 		possibility *possible_moves = (possibility*)malloc(0);
 		int nb_moves = 0; 
 		int potential_score = 0;
@@ -107,8 +108,8 @@ void AI_place_tile(game *G, int ind){
 		for (int degrees = 0 ; degrees < 360 ; degrees += 90){
 
 
-			for (i = minX ; i < maxX ; i++){
-				for (j = minY ; j < maxY ; j++){
+			for (i = minX ; i <= maxX ; i++){
+				for (j = minY ; j <= maxY ; j++){
 					if (is_tile_placeable(G->board, T, i, j)){
 						nb_moves++;
 						possible_moves = realloc(possible_moves, nb_moves*sizeof(possibility));
