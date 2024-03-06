@@ -3,4 +3,5 @@ main
 creative
 *.exe
 .vscode
+.obsidian
 
